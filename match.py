@@ -28,8 +28,12 @@ MALUS_AUSSCHLUSS = 8
 MALUS_KO = 100          # hält ko-Treffer klar unter den vollständigen
 MALUS_GEHALT = 5
 
-# Felder, deren Text durchsucht wird
+# Felder, deren Text für Skill-Scoring durchsucht wird (breit = gewollt)
 TEXT_FELDER = ("title", "company", "location", "description", "such_titel")
+# Ausschluss nur hier prüfen: der Job-TYP (Praktikum/Azubi/Werkstudent) steht im
+# Titel. Anforderungen im Fließtext ("abgeschlossene Ausbildung", einzureichende
+# "Praktikumsbescheinigungen") sind sonst False-Positives, die echte Stellen verbannen.
+AUSSCHLUSS_FELDER = ("title", "such_titel")
 
 
 @dataclass
@@ -45,10 +49,10 @@ def _norm(s: object) -> str:
     return re.sub(r"\s+", " ", str(s)).strip().lower()
 
 
-def _treffer_text(t: dict) -> str:
-    """Durchsuchbarer Gesamttext eines Treffers (Listen wie such_titel mitgenommen)."""
+def _feld_text(t: dict, felder: tuple[str, ...]) -> str:
+    """Normalisierter Text aus den angegebenen Feldern (Listen wie such_titel mit)."""
     teile: list[str] = []
-    for f in TEXT_FELDER:
+    for f in felder:
         v = t.get(f)
         if v is None:
             continue
@@ -66,11 +70,12 @@ def _treffer(text: str, skills: list[str]) -> list[str]:
 
 def bewerte_einen(t: dict, pm: MatchProfil) -> dict:
     """Gibt eine Kopie von t mit zusätzlichem 'match'-Block (score, ko, Detail) zurück."""
-    text = _treffer_text(t)
+    text = _feld_text(t, TEXT_FELDER)
+    titel_text = _feld_text(t, AUSSCHLUSS_FELDER)
     muss_treffer = _treffer(text, pm.skills_muss)
     muss_fehlt = [s for s in pm.skills_muss if s and _norm(s) not in text]
     kann_treffer = _treffer(text, pm.skills_kann)
-    aus_treffer = _treffer(text, pm.ausschluss_keywords)
+    aus_treffer = _treffer(titel_text, pm.ausschluss_keywords)  # nur im Titel
 
     score = (
         len(muss_treffer) * GEWICHT_MUSS

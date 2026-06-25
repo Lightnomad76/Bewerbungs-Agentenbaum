@@ -42,12 +42,16 @@
 - **Matching tokenisieren** und **K.o. zu reinem Bonus** (Optionen B/C) nicht gewählt; Profil-Umstellung
   (Option A) reichte, Logik bleibt deterministisch/einfach.
 
+## Behoben nach Etappe-2-Abschluss (2026-06-25)
+
+- **Ausschluss-False-Positives (war Known Issue):** Ausschluss-Keywords wurden im ganzen Anzeigentext
+  gesucht → „abgeschlossene Ausbildung" / „Praktikumsbescheinigungen" (Anforderungen) verbannten echte
+  Stellen. Fix: `match.py` prüft Ausschluss jetzt **nur in Titel + such_titel** (`AUSSCHLUSS_FELDER`),
+  Keywords auf Stellen-Typ-/Azubi-Titel-Muster präzisiert (kein bloßes „Ausbildung"). Regressionstest in
+  `verify_match.py`. Live-Effekt: 0 False-Positive-Ausschlüsse, „INDUSTRIEMECHANIKER (M/W/D)" von #35 → #17.
+
 ## Known Issues (verbleibend in v2)
 
-- **Ausschluss `"Ausbildung"` zu breit:** matcht auch „abgeschlossene (Berufs-)Ausbildung" (= Anforderung,
-  kein Azubi-Job) → False-Positive-Malus, zieht ≥1 echte Mechaniker-Stelle nach unten. Profil-Feinheit,
-  kein Code-Bug. Optionen für später: Wort-Grenzen/Phrasen („Ausbildung zum", „Ausbildungsplatz") statt
-  Substring, oder Keyword entfernen.
 - **Google-Quelle weiter 0 Treffer** („initial cursor not found") — JobSpy-seitig (S3, vor eigenem Debugging
   via `lib-version-checker` gegen offene Issues prüfen). Indeed trägt allein.
 - **Global-pip/crewai** weiter gebrochen (aus v1, bewusst vertagt) — JobSpy-Install hatte numpy/regex

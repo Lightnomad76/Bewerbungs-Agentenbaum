@@ -69,6 +69,18 @@ def test_ausschluss() -> None:
     check(prakt["match"]["score"] < sauber["match"]["score"], "Ausschluss senkt Score")
 
 
+def test_ausschluss_nur_titel() -> None:
+    print("[3b] Ausschluss greift nur im Titel, nicht im Anforderungs-Fließtext")
+    # False-Positive-Schutz: 'Praktikum'/'Ausbildung' als Anforderung im Body
+    body = match.bewerte_einen(_job(
+        title="Industriemechaniker (m/w/d)",
+        description="Voraussetzung: abgeschlossene Ausbildung; bitte Praktikumsbescheinigungen einreichen."), PM)
+    check(body["match"]["ausschluss_treffer"] == [], "Ausschluss im Body wird ignoriert")
+    # echte Stelle: Typ steht im Titel
+    titel = match.bewerte_einen(_job(title="Praktikum im Qualitätswesen (m/w/d)"), PM)
+    check("Praktikum" in titel["match"]["ausschluss_treffer"], "Ausschluss im Titel greift")
+
+
 def test_gehalt() -> None:
     print("[4] Gehalt unter Minimum = Flag + Malus")
     drunter = match.bewerte_einen(
@@ -97,6 +109,7 @@ def main() -> int:
     test_muss_ko()
     test_kann_bonus()
     test_ausschluss()
+    test_ausschluss_nur_titel()
     test_gehalt()
     test_sortierung()
     print("---")
