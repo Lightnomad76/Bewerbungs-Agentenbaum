@@ -57,6 +57,23 @@ def test_dedup() -> None:
     print("[2] ReportAgent: Dedup")
     out = engine.dedupliziere(_synth_df())
     check(len(out) == 2, f"3 Roh -> 2 dedupliziert (ist {len(out)})")
+    # K2: such_titel der URL-Dublette (x/1) muss beide Such-Titel als Liste tragen
+    zeile = out[out["job_url"] == "https://x/1"].iloc[0]
+    st = zeile["such_titel"]
+    check(isinstance(st, list) and set(st) == {"Industriemechaniker", "Qualitätssicherung"},
+          f"K2: such_titel je Schlüssel aggregiert (ist {st})")
+
+
+def test_dedup_k1() -> None:
+    print("[2b] ReportAgent: K1 — gleiche(r) Titel/Firma/Ort, andere job_url bleibt erhalten")
+    df = pd.DataFrame([
+        {"job_url": "https://x/1", "title": "Industriemechaniker", "company": "ACME",
+         "location": "Stadt", "such_titel": "Industriemechaniker"},
+        {"job_url": "https://x/2", "title": "Industriemechaniker", "company": "ACME",
+         "location": "Stadt", "such_titel": "Industriemechaniker"},
+    ])
+    out = engine.dedupliziere(df)
+    check(len(out) == 2, f"K1: 2 verschiedene job_url bleiben 2 (ist {len(out)})")
 
 
 def test_report_schema() -> None:
@@ -85,6 +102,29 @@ def test_report_schema() -> None:
             engine.OUT_JSON, engine.OUT_CSV = orig_json, orig_csv
 
 
+def test_schema_stabil() -> None:
+    print("[3b] ReportAgent: S1 — Kernschema stabil trotz fehlender/zusätzlicher Spalten")
+    p = engine.lade_profil()
+    df = pd.DataFrame([{"title": "X", "company": "Y", "job_url": "u1",
+                        "such_titel": "X", "extra_spalte": "soll_weg"}])
+    with tempfile.TemporaryDirectory() as td:
+        tdp = Path(td)
+        orig_json, orig_csv = engine.OUT_JSON, engine.OUT_CSV
+        engine.OUT_JSON, engine.OUT_CSV = tdp / "t.json", tdp / "t.csv"
+        try:
+            engine.schreibe_report(df, p)
+            payload = json.loads(engine.OUT_JSON.read_text(encoding="utf-8"))
+            keys = set(payload["treffer"][0].keys())
+            erwartet = set(engine.KERN) | {"match"}
+            check(keys == erwartet, f"Treffer-Keys == KERN + match (ist {sorted(keys)})")
+            check("extra_spalte" not in keys, "fremde Spalte nicht im JSON")
+            # fehlende Kernspalte (z.B. description) ist als null vorhanden, nicht abwesend
+            check("description" in keys and payload["treffer"][0]["description"] is None,
+                  "fehlende Kernspalte als null vorhanden")
+        finally:
+            engine.OUT_JSON, engine.OUT_CSV = orig_json, orig_csv
+
+
 def test_leerer_report() -> None:
     print("[4] ReportAgent: leerer DataFrame (0 Treffer) bricht nicht")
     p = engine.lade_profil()
@@ -105,7 +145,9 @@ def main() -> int:
     print("=== verify_engine.py (offline Mechanik-Selbsttest) ===")
     test_profil_parsing()
     test_dedup()
+    test_dedup_k1()
     test_report_schema()
+    test_schema_stabil()
     test_leerer_report()
     print("---")
     if FEHLER:

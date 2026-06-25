@@ -1,12 +1,12 @@
 # HANDOFF — Jobsuche-Agent (Bewerbungshilfe)
 
-**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-25 (public GitHub-Repo + Quellen-/Dependency-Snapshot; geschärft für Etappe 2)
-**Phase:** **Etappe 1 (Daten-Engine) ABGESCHLOSSEN** — Detail: `state/etappe_v1_state.md`. **Nächstes = Etappe 2 (MatchAgent) in FRISCHEM Chat.**
-**Ziel-Session:** Claude Code CLI (Senior Dev / Marek)
+**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-25 (Etappe 2 MatchAgent abgeschlossen + live-verifiziert; geschärft für Etappe 3 Web-UI)
+**Phase:** **Etappe 2 (MatchAgent) ABGESCHLOSSEN** — Detail: `state/etappe_v2_state.md`. **Nächstes = Etappe 3 (lokale HTML-Web-UI, edyta) in FRISCHEM Chat.**
+**Ziel-Session:** Claude Code CLI (Etappe 3 = edyta / GUI-Hut)
 **Sprache:** Deutsch, technische Begriffe Englisch lassen
-**Repo:** öffentlich auf github.com/Lightnomad76/Bewerbungs-Agentenbaum — **PII-Dateien NIE pushen** (jobprofil.yaml, firmenhistorie_enriched.md, etappe_bewerbung_guetepruefer_state.md, Lebensläufe/Anschreiben; alle gitignored). Memory: `github-repo-public`.
+**Repo:** öffentlich auf github.com/Lightnomad76/Bewerbungs-Agentenbaum — **PII-Dateien NIE pushen** (jobprofil.yaml, firmenhistorie_enriched.md, etappe_bewerbung_guetepruefer_state.md, treffer_v*.json/.csv mit echten Treffern, Lebensläufe/Anschreiben; alle gitignored). Memory: `github-repo-public`.
 
-!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=EIGENE-FRISCHE-SESSION-MIT-MAREK(MatchAgent; ZUERST Marek-Review-Fixes K1/K2/S1/S2 aus Etappe 1, dann Scoring; brief-writer für v2-Brief; ~40k Rest reichen NICHT für Marek-Spawn ~50-90k → neuer Chat); live-jobspy-run=netz-posten(wall-clock+erfolgsrate ERST beim echten run messbar, eigener schritt); web-ui=eigene-gui-etappe(edyta, nach etappe1+2); agenten-roadmap=EIGENE-NEUE-SESSION-MIT-MAREK(User-Entscheid 2026-06-24, NICHT anhängen; Grundlage state/agenten_roadmap.md: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad); public-repo=KEIN-PII-pushen
+!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer — siehe state); etappe-3=EIGENE-FRISCHE-SESSION-MIT-EDYTA(lokale HTML-Web-UI, lädt treffer_v2.json, sortiert/filterbar; brief-writer für v3-Brief); zip+commit-etappe2=OFFEN(auf User-go: make_backup.py _stable-ZIP + git-commit; NOCH NICHT gelaufen); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); agenten-roadmap=EIGENE-NEUE-SESSION-MIT-MAREK(User-Entscheid 2026-06-24, NICHT anhängen; Grundlage state/agenten_roadmap.md: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad); public-repo=KEIN-PII-pushen
 
 ---
 
@@ -16,16 +16,19 @@ Ein **read-only Job-Such- & Matching-Agent**: durchsucht Jobbörsen, scored die 
 gegen das Jobprofil des Users und liefert priorisierte Vorschläge. **Kein** Auto-Bewerben,
 **kein** Profil-Steuern (siehe Caveats).
 
-## Sofort-Einstieg Etappe 2 — MatchAgent (frischer Chat, mit Marek)
+## Sofort-Einstieg Etappe 3 — lokale HTML-Web-UI (frischer Chat, mit edyta)
 
-Etappe 1 läuft (36 reale Treffer, `verify_engine.py` grün). Reihenfolge für den neuen Chat:
-1. **Lesen:** dieses HANDOFF + `state/etappe_v1_state.md` (Ist-Stand Engine). Quellen-Stand bei Bedarf: `state/quellen_stand_2026-06-25.md`.
-2. **Environment-Smoke (§3.11):** `py -3.11 verify_engine.py` muss exit 0 sein, BEVOR gebaut wird.
-3. **ZUERST die Marek-Review-Fixes K1/K2/S1/S2** anwenden (Engine-Bugs, die Etappe 2 beißen — Detail unten im „Ausgearbeiteter Etappen-Plan", Etappe-2-Bullet). `verify_engine.py` um Tests für K1/K2/Schema erweitern (N1/N2).
-4. **Dann MatchAgent bauen:** Keyword-Scoring offline gegen `profil_fuer_matching` (skills_muss = K.o., skills_kann = Bonus, ausschluss_keywords abwerten, gehalt). Output = priorisierte/gescorte JSON-Liste.
-5. Selbstcheck (§3.5) → auf „ZIP"/„go" warten → `etappe-tracker` für `state/etappe_v2_state.md`.
-- **Optional vorab:** `brief-writer` für einen v2-Kontext-Brief (ersetzt Chat-History).
-- **Achtung public Repo:** vor jedem `git push` prüfen, dass keine PII (jobprofil.yaml etc.) getrackt wird.
+Etappe 2 läuft (35 reale Treffer, gescort; `verify_engine.py` + `verify_match.py` grün). Reihenfolge:
+1. **Lesen:** dieses HANDOFF + `state/etappe_v2_state.md` (Ist-Stand Engine+MatchAgent).
+2. **Environment-Smoke (§3.11):** `py -3.11 verify_engine.py` UND `py -3.11 verify_match.py` müssen exit 0 sein.
+3. **UI bauen (edyta / GUI-Hut):** statisches HTML/JS im Projektordner, lädt `treffer_v2.json` (Schema: `{meta, treffer[]}`; jeder Treffer hat `match.{score,ko,muss_treffer,muss_fehlt,kann_treffer,ausschluss_treffer,gehalt_unter_min}` + Kernfelder title/company/location/job_url/date_posted/min_amount/max_amount/description/such_titel[Liste]). Sortierbar nach Score, filterbar (z.B. Ausschluss ein/aus, Min-Score), Skill-Treffer sichtbar.
+4. **Wichtig fürs lokale Laden:** Browser blockt `fetch()` von `file://` (CORS) → UI muss entweder das JSON inline/per `<script>`-Bridge laden ODER mit `py -3.11 -m http.server` im Projektordner serviert werden. edyta entscheidet den Weg.
+5. Selbstcheck (§3.5) → auf „ZIP"/„go" warten → `state/etappe_v3_state.md`.
+- **Optional vorab:** `brief-writer` für einen v3-Kontext-Brief.
+- **Achtung public Repo:** `treffer_v2.json/.csv` enthalten echte Treffer → vor `git push` prüfen, dass weder die noch andere PII getrackt werden (gitignored halten).
+
+## NOCH OFFEN aus Etappe 2 (auf User-„go")
+- **`_stable`-ZIP + Git-Commit** für Etappe 2 wurden bewusst NICHT ausgeführt (Freigabe-gegated). Bei „go": `py -3.11 make_backup.py` (oder Projekt-Konvention) für `_stable`-ZIP, dann Commit der Code-Dateien (main.py, match.py, verify_*.py, state/etappe_v2_state.md, HANDOFF.md, jobprofil.example.yaml — **NICHT** jobprofil.yaml / treffer_v2.*).
 
 ## Entschieden (mit Quelle — nicht neu aufrollen)
 
@@ -56,14 +59,8 @@ Etappe 1 läuft (36 reale Treffer, `verify_engine.py` grün). Reihenfolge für d
 - **Etappe 1 — Daten-Engine (Marek): ✅ ERLEDIGT 2026-06-23.** `main.py` + `verify_engine.py` gebaut, `py -3.11` fixiert (3.14 = numpy-Source-Build-Bruch), JobSpy v1.1.82 installiert. Live-Run: 2.7s, 36 reale DE-Treffer (alle Indeed; Google liefert 0). Output `treffer_v1.json`+`.csv`. Detail: `state/etappe_v1_state.md`.
   - ⚠️ **VERTAGT (User):** global-pip-Nebenwirkung — JobSpy-Install stufte global numpy 2.4.6→1.26.3 + regex 2026.1.15→2024.11.6 herunter → **crewai broken** (`requires regex~=2026.1.15`). Bewusst offen, später adressieren (crewai eigenes venv o.ä.).
   - Offen: Google-Query nachjustieren oder Indeed-only; `_stable`-ZIP via `make_backup.py` vor v2 noch nicht erzeugt.
-- **Etappe 2 — MatchAgent (Marek):** Keyword-Scoring offline gegen `profil_fuer_matching` (skills_muss = K.o., skills_kann = Bonus, ausschluss_keywords abwerten, gehalt). Priorisierte/gescorte JSON-Liste. `brief-writer` für v2-Brief.
-  - **⚠️ ZUERST: Marek-Review-Fixes aus Etappe 1 anwenden** (Review 2026-06-23, Engine-Bugs die Etappe 2 beißen):
-    - **K1 (kritisch, Datenverlust):** `main.py:137-142` `dedupliziere` — die `(title,company,location)`-Fallback-Stufe läuft auf dem GANZEN Frame und löscht echte verschiedene Anzeigen derselben Firma/Titel (verschiedene `job_url`). Fix: Fallback nur auf Zeilen **ohne** `job_url` (`df["job_url"].isna()`), URL-Zeilen unangetastet. (Der state-File-Text „Dedup per job_url + Fallback" ist als Feature beschrieben, ist aber dieser Bug.)
-    - **K2 (kritisch):** `such_titel` geht beim Dedup verloren (`keep="first"` willkürlich). Fix: vor Dedup `such_titel` pro Schlüssel zu Set aggregieren — relevant fürs Scoring.
-    - **S1 (Schema-Vertrag):** `main.py:151` `to_json` serialisiert nur vorhandene Spalten → JSON-Schema schwankt je Quelle/Treffermenge. Fix: Kernschema per `df.reindex(columns=KERN)` erzwingen (title,company,location,job_url,date_posted,min/max_amount,description,such_titel) — macht UI-Bridge vertragsfest.
-    - **S2 (sicherer Win):** `main.py:114-116` `try/except Exception` umschließt auch die DataFrame-Nachbearbeitung → verschluckt echte Bugs als stille 0-Treffer. Fix: `try` nur um den `scrape_jobs()`-Call ziehen.
-    - **N1/N2:** `verify_engine.py` um Tests für K1 (gleicher Titel/Firma/Ort, andere URL → muss 2 bleiben) + K2 + Schema-Stabilität erweitern.
-    - **S3 (nur Einschätzung):** Google-0 ist mutmaßlich JobSpy-seitig (Cursor-Token), nicht unser `google_search_term` — vor eigenem Debugging via `lib-version-checker` gegen offene Issues checken, kein Query-Tweak.
+- **Etappe 2 — MatchAgent (Marek): ✅ ERLEDIGT 2026-06-25.** `match.py` (offline Keyword-Scoring), Fixes K1/K2/S1 angewandt (S2 war bereits korrekt), `verify_engine.py` erweitert + `verify_match.py` neu (34 Checks grün). Live: 2.78s, 35 Treffer, sinnvolles Ranking. `skills_muss` bewusst **leer** gesetzt (Zwei-Berufsrichtungen-Profil hat keinen sinnvollen UND-K.o.-Term; Berufs-Keywords als Bonus). Output `treffer_v2.json/.csv`. Detail: `state/etappe_v2_state.md`.
+  - **Restpunkte (nicht blockierend):** Ausschluss `"Ausbildung"` zu breit (matcht „abgeschlossene Ausbildung"); Google weiter 0 (S3 — JobSpy-seitig, vor Debugging via `lib-version-checker` offene Issues checken); `_stable`-ZIP + Commit ausstehend (auf User-go).
 - **Etappe 3 — Lokale HTML-Web-UI (edyta):** statisches HTML/JS im Projektordner, lädt die gescorte JSON, zeigt sortiert/filterbar. `brief-writer` für v3-Brief.
 - **Etappe 4 (optional) — natives Xing/Jobware-Scraping (Wolf):** nur falls Google-Umweg-Abdeckung später unzureichend.
 
