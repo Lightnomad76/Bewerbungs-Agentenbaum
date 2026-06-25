@@ -1,12 +1,12 @@
 # HANDOFF — Jobsuche-Agent (Bewerbungshilfe)
 
-**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-25 (Etappe 2 MatchAgent abgeschlossen + live-verifiziert; geschärft für Etappe 3 Web-UI)
+**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-25 (Etappe 2 abgeschlossen + committed + _stable-ZIP; Ausschluss-Fix nachgezogen; geschärft für Etappe 3 Web-UI)
 **Phase:** **Etappe 2 (MatchAgent) ABGESCHLOSSEN** — Detail: `state/etappe_v2_state.md`. **Nächstes = Etappe 3 (lokale HTML-Web-UI, edyta) in FRISCHEM Chat.**
 **Ziel-Session:** Claude Code CLI (Etappe 3 = edyta / GUI-Hut)
 **Sprache:** Deutsch, technische Begriffe Englisch lassen
 **Repo:** öffentlich auf github.com/Lightnomad76/Bewerbungs-Agentenbaum — **PII-Dateien NIE pushen** (jobprofil.yaml, firmenhistorie_enriched.md, etappe_bewerbung_guetepruefer_state.md, treffer_v*.json/.csv mit echten Treffern, Lebensläufe/Anschreiben; alle gitignored). Memory: `github-repo-public`.
 
-!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer — siehe state); etappe-3=EIGENE-FRISCHE-SESSION-MIT-EDYTA(lokale HTML-Web-UI, lädt treffer_v2.json, sortiert/filterbar; brief-writer für v3-Brief); zip+commit-etappe2=OFFEN(auf User-go: make_backup.py _stable-ZIP + git-commit; NOCH NICHT gelaufen); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); agenten-roadmap=EIGENE-NEUE-SESSION-MIT-MAREK(User-Entscheid 2026-06-24, NICHT anhängen; Grundlage state/agenten_roadmap.md: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad); public-repo=KEIN-PII-pushen
+!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN+COMMITTED(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer; Ausschluss nur im Titel = AUSSCHLUSS_FELDER, False-Positives behoben; commits da545d5+5e53391; _stable-ZIP v2 gezogen — siehe state); etappe-3=EIGENE-FRISCHE-SESSION-MIT-EDYTA(lokale HTML-Web-UI, lädt treffer_v2.json, sortiert/filterbar; brief-writer für v3-Brief); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); agenten-roadmap=EIGENE-NEUE-SESSION-MIT-MAREK(User-Entscheid 2026-06-24, NICHT anhängen; Grundlage state/agenten_roadmap.md: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad); public-repo=KEIN-PII-pushen
 
 ---
 
@@ -27,8 +27,9 @@ Etappe 2 läuft (35 reale Treffer, gescort; `verify_engine.py` + `verify_match.p
 - **Optional vorab:** `brief-writer` für einen v3-Kontext-Brief.
 - **Achtung public Repo:** `treffer_v2.json/.csv` enthalten echte Treffer → vor `git push` prüfen, dass weder die noch andere PII getrackt werden (gitignored halten).
 
-## NOCH OFFEN aus Etappe 2 (auf User-„go")
-- **`_stable`-ZIP + Git-Commit** für Etappe 2 wurden bewusst NICHT ausgeführt (Freigabe-gegated). Bei „go": `py -3.11 make_backup.py` (oder Projekt-Konvention) für `_stable`-ZIP, dann Commit der Code-Dateien (main.py, match.py, verify_*.py, state/etappe_v2_state.md, HANDOFF.md, jobprofil.example.yaml — **NICHT** jobprofil.yaml / treffer_v2.*).
+## Etappe 2 — Abschluss-Stand (erledigt)
+- **Committed:** `da545d5` (MatchAgent + Fixes K1/K2/S1), `5e53391` (Ausschluss nur im Titel, False-Positives behoben). `_stable`-ZIP `Bewerbungs-Agentenbaum_v2_stable.zip` gezogen (lokal, gitignored).
+- **Live-Stand:** 35 reale Treffer, sinnvolles Ranking (score 30..0), 0 False-Positive-Ausschlüsse. `treffer_v2.json/.csv` lokal vorhanden (gitignored).
 
 ## Entschieden (mit Quelle — nicht neu aufrollen)
 
