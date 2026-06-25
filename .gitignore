@@ -1,0 +1,30 @@
+# Persönliche Nutzerdaten — NICHT committen (nur jobprofil.example.yaml ist eingecheckt)
+profile/jobprofil.yaml
+profile/Lebenslauf_*.docx
+profile/Lebenslauf_*.pdf
+profile/Lebenslauf_*.md
+profile/Lebenslauf_*.txt
+profile/Anschreiben_*.md
+profile/Anschreiben_*.txt
+profile/Anschreiben_*.docx
+profile/Anschreiben_*.pdf
+profile/gen_cv.py
+profile/gen_bewerbung_*.py
+
+# Treffer-Output (entsteht ab Etappe 1)
+treffer_*.json
+treffer_*.csv
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ZIP-Snapshots (nur _stable lokal halten, nicht ins Repo)
+*.zip
+.backup_dateien/
+
+# Personenbezogene Projekt-Artefakte (nicht ins oeffentliche Repo)
+profile/firmenhistorie_enriched.md
+state/etappe_bewerbung_guetepruefer_state.md

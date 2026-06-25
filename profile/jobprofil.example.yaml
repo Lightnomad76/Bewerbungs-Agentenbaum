@@ -1,0 +1,34 @@
+# jobprofil.example.yaml
+# Ausfüllen und als jobprofil.yaml speichern. Dient ProfileAgent + (ab Etappe 2) MatchAgent.
+# Felder leer lassen = nicht gefiltert.
+
+person:
+  name: ""
+  standort: "Wolfen, Sachsen-Anhalt, DE"   # Basis für location-Suche
+  umkreis_km: 50                            # JobSpy 'distance' (Default 50)
+
+suche:
+  jobtitel:                                 # Such-Begriffe (OR), pro Quelle genutzt
+    - ""                                    # z.B. "Python Entwickler"
+    - ""
+  anzeigen_sprache: "de"                    # de / en / beides
+  remote: null                              # true / false / null (egal)
+  job_type: ""                              # fulltime | parttime | contract | internship | "" (egal)
+  hours_old: 168                            # nur Anzeigen der letzten N Stunden (168 = 7 Tage)
+  results_wanted: 25                        # Treffer pro Quelle
+
+quellen:                                    # welche Börsen durchsuchen
+  indeed: true                              # stabilste Quelle
+  google: true                              # fängt Xing/Jobware teils mit (Umweg)
+  linkedin: false                           # rate-limited; bei Bedarf true + ggf. Proxy
+  glassdoor: false
+
+# --- Ab Etappe 2 (Matching), jetzt nur sammeln, noch nicht aktiv ---
+profil_fuer_matching:
+  skills_muss:                              # K.o.-Kriterien
+    - ""
+  skills_kann:                              # Bonus
+    - ""
+  gehalt_min_eur_jahr: null                 # null = egal
+  ausschluss_keywords:                      # Anzeigen mit diesen Wörtern abwerten/filtern
+    - ""
