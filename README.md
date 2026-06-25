@@ -1,25 +1,54 @@
-# Jobsuche-Agent — Handoff-Paket v0
+# Jobsuche-Agent
 
-Übergabe der Konzeptions-Phase an eine Claude-Code-CLI-Session. **Noch kein Code.**
+Ein **read-only** Job-Such- & Matching-Agent: durchsucht Jobbörsen, scored die Treffer gegen
+ein Jobprofil und liefert priorisierte Vorschläge als JSON/CSV. **Kein** Login, **kein**
+Auto-Bewerben, **kein** Profil-Steuern — bewusst login-frei (AGB/Account-Sperrgefahr).
 
-## Inhalt
+## Funktionsweise
 
-| Datei | Zweck |
-|---|---|
-| `HANDOFF.md` | **Hier starten.** Einstieg, Entscheidungen, 5 offene Fragen, Caveats. |
-| `state/konzept_state.md` | Was gemacht/verworfen/offen ist (etappe-tracker-Stil). |
-| `briefs/etappe_v1_brief.md` | Etappe 1 fertig gebrieft (brief-writer-Stil). |
-| `profile/jobprofil.example.yaml` | Vom User auszufüllen → `jobprofil.yaml`. |
+Pipeline `ProfileAgent → SearchAgent → ReportAgent`:
 
-## Ablauf in der CLI-Session
+1. **ProfileAgent** liest `profile/jobprofil.yaml` (Suchbegriffe, Standort/Umkreis, aktive Quellen).
+2. **SearchAgent** sucht je Titel über alle aktiven Quellen via [JobSpy](https://github.com/speedyapply/JobSpy)
+   (Indeed, Google Jobs, LinkedIn, Glassdoor, ZipRecruiter). Eine ausgefallene Quelle bricht den Lauf nicht ab.
+3. **ReportAgent** dedupliziert und schreibt `treffer_v1.json` (Bridge zu einer späteren Web-UI) + `treffer_v1.csv`.
 
-1. `HANDOFF.md` lesen.
-2. Die **5 offenen Fragen** dem User stellen (gebündelt), Antworten abwarten.
-3. User füllt `jobprofil.yaml`.
-4. Etappe 1 nach `briefs/etappe_v1_brief.md` bauen.
-5. Selbstcheck → Zusammenfassung → auf "ZIP" warten (User-Workflow §7).
+## Setup & Start
 
-## Wichtig
+Python (primär `py -3.11`; JobSpy-Stack ist unter 3.11 stabil, 3.14 bricht beim numpy-Source-Build).
 
-- Read-only. Kein Login, kein Auto-Bewerben (AGB/Account-Sperre).
-- JobSpy-Wheel auf Python 3.14.4 vor Einbau prüfen (lib-version-checker).
+```bash
+py -3.11 -m pip install python-jobspy pandas pyyaml
+cp profile/jobprofil.example.yaml profile/jobprofil.yaml   # dann ausfüllen
+py -3.11 main.py            # Suche ausführen -> treffer_v1.json + .csv
+py -3.11 verify_engine.py   # Offline-Mechanik-Selbsttest (exit 0 = grün)
+```
+
+## Konfiguration
+
+`profile/jobprofil.yaml` (Vorlage: `profile/jobprofil.example.yaml`) steuert Suchbegriffe,
+Standort + Umkreis, Remote/Job-Type und die aktiven Quellen. Die echte `jobprofil.yaml` ist
+gitignored (persönliche Daten) — nur das `.example` ist eingecheckt.
+
+## Quellen-Hinweise
+
+- **Indeed / Google** = verlässliche Default-Quellen.
+- **LinkedIn** ist stark rate-limited (oft Block ab ~Seite 10) → Proxies empfohlen.
+- **Xing/Jobware** werden über den Google-Jobs-Umweg mitgegriffen (kein nativer Scraper).
+- Stand der installierten Libs/Quellen: `state/quellen_stand_2026-06-25.md`.
+
+## Roadmap
+
+| Etappe | Inhalt | Status |
+|---|---|---|
+| 1 | Daten-Engine (Suchen + JSON/CSV-Report) | ✅ |
+| 2 | MatchAgent — deterministisches Keyword-Scoring offline | geplant |
+| 3 | Lokale HTML-Web-UI (lädt die gescorte JSON) | geplant |
+| 4 | Natives Xing/Jobware-Scraping | optional |
+
+## Scope / Caveats
+
+- **Read-only Scraping** bewegt sich in einer AGB-Grauzone; Einloggen/Automatisieren von Konten
+  ist die rote Linie — das Tool bleibt deshalb login-frei.
+- Matching ist deterministisch & offline (gratis); semantische/LLM-Erweiterung optional später.
+- Tatsächliche Erfolgsrate je Quelle ist erst beim echten Lauf messbar.
