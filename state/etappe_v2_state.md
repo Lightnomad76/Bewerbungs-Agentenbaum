@@ -42,8 +42,13 @@
 - **Matching tokenisieren** und **K.o. zu reinem Bonus** (Optionen B/C) nicht gewählt; Profil-Umstellung
   (Option A) reichte, Logik bleibt deterministisch/einfach.
 
-## Behoben nach Etappe-2-Abschluss (2026-06-25)
+## Nachgezogen nach Etappe-2-Abschluss (2026-06-25)
 
+- **JS-Bridge für Etappe-3-UI (Vorbereitung):** `main.py` schreibt zusätzlich `treffer_v2.js`
+  (`window.TREFFER = {…}`) → lokale UI per `file://`-Doppelklick ohne Server (CORS umgangen).
+  `OUT_JS`-Konstante; `verify_engine.py` prüft die Bridge mit. `.gitignore`: `treffer_*.js` ignoriert,
+  `!treffer_*.example.*` committbar. Anonymisierte Fixtures `treffer_v2.example.json/.js` eingecheckt.
+  Lade-Weg + Design (hell/nüchtern) sind User-Entscheide; Detail im `briefs/etappe_v3_brief.md`.
 - **Ausschluss-False-Positives (war Known Issue):** Ausschluss-Keywords wurden im ganzen Anzeigentext
   gesucht → „abgeschlossene Ausbildung" / „Praktikumsbescheinigungen" (Anforderungen) verbannten echte
   Stellen. Fix: `match.py` prüft Ausschluss jetzt **nur in Titel + such_titel** (`AUSSCHLUSS_FELDER`),

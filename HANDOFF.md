@@ -23,7 +23,7 @@ Etappe 2 läuft (35 reale Treffer, gescort; `verify_engine.py` + `verify_match.p
 1. **Lesen:** dieses HANDOFF + `state/etappe_v2_state.md` (Ist-Stand Engine+MatchAgent).
 2. **Environment-Smoke (§3.11):** `py -3.11 verify_engine.py` UND `py -3.11 verify_match.py` müssen exit 0 sein.
 3. **UI bauen (edyta / GUI-Hut):** statisches HTML/JS im Projektordner, lädt `treffer_v2.json` (Schema: `{meta, treffer[]}`; jeder Treffer hat `match.{score,ko,muss_treffer,muss_fehlt,kann_treffer,ausschluss_treffer,gehalt_unter_min}` + Kernfelder title/company/location/job_url/date_posted/min_amount/max_amount/description/such_titel[Liste]). Sortierbar nach Score, filterbar (z.B. Ausschluss ein/aus, Min-Score), Skill-Treffer sichtbar.
-4. **Wichtig fürs lokale Laden:** Browser blockt `fetch()` von `file://` (CORS) → UI muss entweder das JSON inline/per `<script>`-Bridge laden ODER mit `py -3.11 -m http.server` im Projektordner serviert werden. edyta entscheidet den Weg.
+4. **Lokales Laden ENTSCHIEDEN = JS-Bridge:** `main.py` schreibt `treffer_v2.js` (`window.TREFFER=…`); UI per `<script src>` einbinden, Doppelklick, kein Server. Entwickeln gegen committbare Fixtures `treffer_v2.example.json/.js`. Design = **hell/nüchtern**.
 5. Selbstcheck (§3.5) → auf „ZIP"/„go" warten → `state/etappe_v3_state.md`.
 - **v3-Brief liegt vor:** `briefs/etappe_v3_brief.md` (kein brief-writer-Spawn mehr nötig).
 - **Achtung public Repo:** `treffer_v2.json/.csv` (+ etwaige `treffer_v2.js`-Bridge) enthalten echte Treffer → vor `git push` prüfen, dass weder die noch andere PII getrackt werden (gitignored halten).

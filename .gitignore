@@ -11,9 +11,13 @@ profile/Anschreiben_*.pdf
 profile/gen_cv.py
 profile/gen_bewerbung_*.py
 
-# Treffer-Output (entsteht ab Etappe 1)
+# Treffer-Output (entsteht ab Etappe 1) — echte Treffer sind PII-nah, NICHT committen.
+# Ausnahme: anonymisierte *.example.* Fixtures (für UI-Entwicklung/Tests) sind eingecheckt.
 treffer_*.json
 treffer_*.csv
+treffer_*.js
+!treffer_*.example.json
+!treffer_*.example.js
 
 # Python
 __pycache__/

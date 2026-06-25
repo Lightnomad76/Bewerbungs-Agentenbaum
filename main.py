@@ -26,6 +26,7 @@ BASE = Path(__file__).resolve().parent
 PROFIL_PFAD = BASE / "profile" / "jobprofil.yaml"
 OUT_JSON = BASE / "treffer_v2.json"
 OUT_CSV = BASE / "treffer_v2.csv"
+OUT_JS = BASE / "treffer_v2.js"  # JS-Bridge: erlaubt der lokalen UI file://-Doppelklick (kein fetch/CORS)
 
 # JobSpy 'country_indeed' (steuert nur die Indeed-Domain). Profil ist DE-fixiert.
 DEFAULT_COUNTRY_INDEED = "germany"
@@ -254,7 +255,11 @@ def schreibe_report(df: pd.DataFrame, profil: Profil) -> int:
         },
         "treffer": treffer,
     }
-    OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    payload_json = json.dumps(payload, ensure_ascii=False, indent=2)
+    OUT_JSON.write_text(payload_json, encoding="utf-8")
+    # JS-Bridge für die lokale UI (file:// blockt fetch() -> per <script> einbinden,
+    # liest window.TREFFER). Immer geschrieben, auch bei 0 Treffern.
+    OUT_JS.write_text(f"window.TREFFER = {payload_json};\n", encoding="utf-8")
     if treffer:
         _schreibe_csv(treffer)
     return n

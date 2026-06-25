@@ -81,8 +81,8 @@ def test_report_schema() -> None:
     p = engine.lade_profil()
     with tempfile.TemporaryDirectory() as td:
         tdp = Path(td)
-        orig_json, orig_csv = engine.OUT_JSON, engine.OUT_CSV
-        engine.OUT_JSON, engine.OUT_CSV = tdp / "t.json", tdp / "t.csv"
+        orig_json, orig_csv, orig_js = engine.OUT_JSON, engine.OUT_CSV, engine.OUT_JS
+        engine.OUT_JSON, engine.OUT_CSV, engine.OUT_JS = tdp / "t.json", tdp / "t.csv", tdp / "t.js"
         try:
             n = engine.schreibe_report(_synth_df(), p)
             check(n == 2, f"schreibe_report meldet 2 Treffer (ist {n})")
@@ -98,8 +98,15 @@ def test_report_schema() -> None:
             # NaT-Datum -> null
             nat_ok = any(t.get("date_posted") is None for t in payload["treffer"])
             check(nat_ok, "NaT-Datum korrekt als null serialisiert")
+            # JS-Bridge geschrieben + enthält window.TREFFER mit denselben Daten
+            check(engine.OUT_JS.exists(), "JS-Bridge geschrieben")
+            js = engine.OUT_JS.read_text(encoding="utf-8")
+            check(js.startswith("window.TREFFER = ") and js.rstrip().endswith(";"),
+                  "JS-Bridge hat window.TREFFER = …;")
+            js_payload = json.loads(js[len("window.TREFFER = "):].rstrip().rstrip(";"))
+            check(js_payload["meta"]["anzahl"] == 2, "JS-Bridge enthält dieselben Treffer")
         finally:
-            engine.OUT_JSON, engine.OUT_CSV = orig_json, orig_csv
+            engine.OUT_JSON, engine.OUT_CSV, engine.OUT_JS = orig_json, orig_csv, orig_js
 
 
 def test_schema_stabil() -> None:
@@ -109,8 +116,8 @@ def test_schema_stabil() -> None:
                         "such_titel": "X", "extra_spalte": "soll_weg"}])
     with tempfile.TemporaryDirectory() as td:
         tdp = Path(td)
-        orig_json, orig_csv = engine.OUT_JSON, engine.OUT_CSV
-        engine.OUT_JSON, engine.OUT_CSV = tdp / "t.json", tdp / "t.csv"
+        orig_json, orig_csv, orig_js = engine.OUT_JSON, engine.OUT_CSV, engine.OUT_JS
+        engine.OUT_JSON, engine.OUT_CSV, engine.OUT_JS = tdp / "t.json", tdp / "t.csv", tdp / "t.js"
         try:
             engine.schreibe_report(df, p)
             payload = json.loads(engine.OUT_JSON.read_text(encoding="utf-8"))
@@ -122,7 +129,7 @@ def test_schema_stabil() -> None:
             check("description" in keys and payload["treffer"][0]["description"] is None,
                   "fehlende Kernspalte als null vorhanden")
         finally:
-            engine.OUT_JSON, engine.OUT_CSV = orig_json, orig_csv
+            engine.OUT_JSON, engine.OUT_CSV, engine.OUT_JS = orig_json, orig_csv, orig_js
 
 
 def test_leerer_report() -> None:
@@ -130,15 +137,15 @@ def test_leerer_report() -> None:
     p = engine.lade_profil()
     with tempfile.TemporaryDirectory() as td:
         tdp = Path(td)
-        orig_json, orig_csv = engine.OUT_JSON, engine.OUT_CSV
-        engine.OUT_JSON, engine.OUT_CSV = tdp / "t.json", tdp / "t.csv"
+        orig_json, orig_csv, orig_js = engine.OUT_JSON, engine.OUT_CSV, engine.OUT_JS
+        engine.OUT_JSON, engine.OUT_CSV, engine.OUT_JS = tdp / "t.json", tdp / "t.csv", tdp / "t.js"
         try:
             n = engine.schreibe_report(pd.DataFrame(), p)
             check(n == 0, "0 Treffer gemeldet")
             payload = json.loads(engine.OUT_JSON.read_text(encoding="utf-8"))
             check(payload["treffer"] == [], "treffer ist leere Liste")
         finally:
-            engine.OUT_JSON, engine.OUT_CSV = orig_json, orig_csv
+            engine.OUT_JSON, engine.OUT_CSV, engine.OUT_JS = orig_json, orig_csv, orig_js
 
 
 def main() -> int:

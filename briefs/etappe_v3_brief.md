@@ -40,15 +40,33 @@ Schema `{ meta, treffer[] }`, von der Engine garantiert (S1: Kernschema per `rei
 - Live-Stand: 35 Treffer, score 30..0, 0 False-Positive-Ausschlüsse (Ausschluss wird **nur im Titel**
   geprüft — das ist Engine-Logik, für die UI nur insofern relevant, als `ausschluss_treffer` selten/leer ist).
 
-## Technischer Constraint — lokales Laden (WICHTIG)
+## Technischer Constraint — lokales Laden (ENTSCHIEDEN: JS-Bridge)
 
-Browser blockt `fetch()`/`XMLHttpRequest` von `file://` (CORS) → JSON lässt sich beim Doppelklick **nicht**
-per fetch laden. Zwei Wege (edyta entscheidet):
-1. **JS-Bridge (robust für Doppelklick):** Engine zusätzlich `treffer_v2.js` schreiben lassen mit
-   `window.TREFFER = {…}`; HTML bindet sie per `<script src>` ein. → kein Server nötig.
-   (Kleiner Engine-Zusatz in `schreibe_report` — mit Marek/in der Etappe abstimmen.)
-2. **Lokaler Server:** `py -3.11 -m http.server` im Projektordner, dann `fetch('treffer_v2.json')`.
-   Einfacher Code, aber Nutzer muss den Server starten (ggf. `start_ui.bat`).
+Browser blockt `fetch()` von `file://` (CORS). **Entscheidung (User 2026-06-25): JS-Bridge**, damit die UI
+per **Doppelklick** ohne Server läuft. → **Bereits in der Engine vorbereitet:** `main.py` schreibt bei
+jedem Lauf zusätzlich `treffer_v2.js` mit `window.TREFFER = {…}` (= dasselbe `{meta,treffer[]}`-Payload).
+UI bindet einfach ein:
+```html
+<script src="treffer_v2.js"></script>
+<script> const daten = window.TREFFER; /* {meta, treffer[]} */ </script>
+```
+Kein `fetch`, kein Server, kein Engine-Rückgriff auf Marek mehr nötig. (Der `http.server`-Weg bleibt als
+Fallback denkbar, ist aber nicht der Pfad.)
+
+## Beispiel-Fixtures (committbar — zum UI-Entwickeln/Testen)
+
+Echte `treffer_v2.json/.csv/.js` sind PII-nah + **gitignored** → zum Entwickeln gibt es anonymisierte,
+**eingecheckte** Fixtures mit vollem Schema-Umfang:
+- **`treffer_v2.example.json`** — Schema-Referenz (4 Treffer).
+- **`treffer_v2.example.js`** — lauffähige Bridge (`window.TREFFER=…`) → UI per Doppelklick gegen Fake-Daten.
+Die Fixtures decken bewusst die UI-Kanten ab: vollständiger Top-Treffer, `null`-Felder (Gehalt/Datum),
+`ausschluss_treffer`-Warnung (Praktikum) und ein **`ko=true` + `gehalt_unter_min`**-Fall (damit die ko-/
+Warn-Badges baubar sind, obwohl reale Daten aktuell `skills_muss` leer = kein ko haben).
+
+## Design-Richtung (User-Vorgabe — Feinschliff edyta)
+
+**Hell / nüchtern**: Light-Theme, viel Whitespace, sachlich, lese-/druckfreundlich. Klare Linien,
+Score als ruhiger Akzent, Skill-Chips dezent. Breit fürs Ultrawide nutzen.
 
 ## Dev-Host-Constraints (aus globaler CLAUDE.md §6)
 
@@ -77,8 +95,8 @@ per fetch laden. Zwei Wege (edyta entscheidet):
 1. Lesen: diesen Brief + `HANDOFF.md` + `state/etappe_v2_state.md`.
 2. **Environment-Smoke (§3.11):** `py -3.11 verify_engine.py` UND `py -3.11 verify_match.py` exit 0,
    bei Bedarf `py -3.11 main.py` für frische `treffer_v2.json`.
-3. UI bauen (edyta-Hut). 4. Selbstcheck (§3.5) → auf „go"/„ZIP" warten → `state/etappe_v3_state.md`.
-4. Falls Weg 1 (JS-Bridge) gewählt: kleinen Engine-Zusatz mit Marek abstimmen (Code-Etappe).
+3. UI bauen (edyta-Hut) gegen `treffer_v2.example.js` (Doppelklick). JS-Bridge ist fertig — kein Engine-Schritt.
+4. Selbstcheck (§3.5) → auf „go"/„ZIP" warten → `state/etappe_v3_state.md`.
 
 ## Stand der Kette (Git)
 
