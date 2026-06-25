@@ -1,11 +1,12 @@
 # HANDOFF — Jobsuche-Agent (Bewerbungshilfe)
 
-**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-25 (Quellen-/Dependency-Snapshot + Upgrade-Suche)
-**Phase:** **Etappe 1 (Daten-Engine) ABGESCHLOSSEN** — Detail: `state/etappe_v1_state.md`. Nächstes = Etappe 2 (MatchAgent).
+**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-25 (public GitHub-Repo + Quellen-/Dependency-Snapshot; geschärft für Etappe 2)
+**Phase:** **Etappe 1 (Daten-Engine) ABGESCHLOSSEN** — Detail: `state/etappe_v1_state.md`. **Nächstes = Etappe 2 (MatchAgent) in FRISCHEM Chat.**
 **Ziel-Session:** Claude Code CLI (Senior Dev / Marek)
 **Sprache:** Deutsch, technische Begriffe Englisch lassen
+**Repo:** öffentlich auf github.com/Lightnomad76/Bewerbungs-Agentenbaum — **PII-Dateien NIE pushen** (jobprofil.yaml, firmenhistorie_enriched.md, etappe_bewerbung_guetepruefer_state.md, Lebensläufe/Anschreiben; alle gitignored). Memory: `github-repo-public`.
 
-!ETAPPE-GATE: etappe-1=eigene-frische-session(NICHT an Planung hängen); lib-version-checker=erster-schritt-etappe-1(JobSpy cp314); live-jobspy-run=netz-posten(wall-clock+erfolgsrate ERST beim echten run messbar, eigener schritt); web-ui=eigene-gui-etappe(edyta, nach etappe1+2); agenten-roadmap=EIGENE-NEUE-SESSION-MIT-MAREK(User-Entscheid 2026-06-24, NICHT anhängen; Grundlage state/agenten_roadmap.md: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad)
+!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=EIGENE-FRISCHE-SESSION-MIT-MAREK(MatchAgent; ZUERST Marek-Review-Fixes K1/K2/S1/S2 aus Etappe 1, dann Scoring; brief-writer für v2-Brief; ~40k Rest reichen NICHT für Marek-Spawn ~50-90k → neuer Chat); live-jobspy-run=netz-posten(wall-clock+erfolgsrate ERST beim echten run messbar, eigener schritt); web-ui=eigene-gui-etappe(edyta, nach etappe1+2); agenten-roadmap=EIGENE-NEUE-SESSION-MIT-MAREK(User-Entscheid 2026-06-24, NICHT anhängen; Grundlage state/agenten_roadmap.md: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad); public-repo=KEIN-PII-pushen
 
 ---
 
@@ -15,13 +16,16 @@ Ein **read-only Job-Such- & Matching-Agent**: durchsucht Jobbörsen, scored die 
 gegen das Jobprofil des Users und liefert priorisierte Vorschläge. **Kein** Auto-Bewerben,
 **kein** Profil-Steuern (siehe Caveats).
 
-## Sofort-Einstieg für die CLI-Session (Stand 2026-06-23 — STARTKLAR)
+## Sofort-Einstieg Etappe 2 — MatchAgent (frischer Chat, mit Marek)
 
-Alle Blocker vor Etappe 1 sind gelöst: 5 Fragen geklärt, `profile/jobprofil.yaml` befüllt,
-Repo gebootstrappt (git + CLAUDE.md + .gitignore).
-1. Dieses HANDOFF + `briefs/etappe_v1_brief.md` lesen (Brief sagt noch „CSV" → gilt jetzt **JSON**).
-2. Direkt **Etappe 1 bauen** nach „Ausgearbeiteter Etappen-Plan" unten — reihenfolgetreu (§3.11).
-3. Selbstcheck → auf „ZIP" warten → `etappe-tracker`.
+Etappe 1 läuft (36 reale Treffer, `verify_engine.py` grün). Reihenfolge für den neuen Chat:
+1. **Lesen:** dieses HANDOFF + `state/etappe_v1_state.md` (Ist-Stand Engine). Quellen-Stand bei Bedarf: `state/quellen_stand_2026-06-25.md`.
+2. **Environment-Smoke (§3.11):** `py -3.11 verify_engine.py` muss exit 0 sein, BEVOR gebaut wird.
+3. **ZUERST die Marek-Review-Fixes K1/K2/S1/S2** anwenden (Engine-Bugs, die Etappe 2 beißen — Detail unten im „Ausgearbeiteter Etappen-Plan", Etappe-2-Bullet). `verify_engine.py` um Tests für K1/K2/Schema erweitern (N1/N2).
+4. **Dann MatchAgent bauen:** Keyword-Scoring offline gegen `profil_fuer_matching` (skills_muss = K.o., skills_kann = Bonus, ausschluss_keywords abwerten, gehalt). Output = priorisierte/gescorte JSON-Liste.
+5. Selbstcheck (§3.5) → auf „ZIP"/„go" warten → `etappe-tracker` für `state/etappe_v2_state.md`.
+- **Optional vorab:** `brief-writer` für einen v2-Kontext-Brief (ersetzt Chat-History).
+- **Achtung public Repo:** vor jedem `git push` prüfen, dass keine PII (jobprofil.yaml etc.) getrackt wird.
 
 ## Entschieden (mit Quelle — nicht neu aufrollen)
 
