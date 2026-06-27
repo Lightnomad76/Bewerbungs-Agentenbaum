@@ -146,7 +146,22 @@ def suche_jobs(profil: Profil) -> pd.DataFrame:
 
     if not frames:
         return pd.DataFrame()
-    return pd.concat(frames, ignore_index=True)
+    roh = pd.concat(frames, ignore_index=True)
+
+    # Pro-Quelle-Tally: macht sichtbar, welche Quelle wie viel beigetragen hat.
+    # Google/ZipRecruiter liefern aktuell upstream 0 ("initial cursor not found",
+    # JobSpy-Issue #302, offen/unfixbar von unserer Seite) — das soll nicht stumm
+    # verpuffen, sonst wird es immer wieder neu debuggt.
+    if "site" in roh.columns:
+        pro_quelle = roh["site"].value_counts().to_dict()
+        for s in profil.sites:
+            print(f"  [Quelle] {s}: {int(pro_quelle.get(s, 0))} Roh-Treffer (vor Dedup)")
+        if "google" in profil.sites and int(pro_quelle.get("google", 0)) == 0:
+            print("  [Hinweis] google: 0 — bekannter JobSpy-Upstream-Bug (Issue #302, "
+                  "'initial cursor not found'); NICHT die Query. Indeed bleibt verlässlich; "
+                  "der Xing/Jobware-Umweg über Google greift erst wieder nach Upstream-Fix.",
+                  file=sys.stderr)
+    return roh
 
 
 # --------------------------------------------------------------------------- #

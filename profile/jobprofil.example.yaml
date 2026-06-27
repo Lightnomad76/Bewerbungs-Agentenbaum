@@ -19,7 +19,10 @@ suche:
 
 quellen:                                    # welche Börsen durchsuchen
   indeed: true                              # stabilste Quelle
-  google: true                              # fängt Xing/Jobware teils mit (Umweg)
+  google: true                              # SOLL Xing/Jobware mitfangen (Umweg), liefert
+                                            # aber aktuell 0: JobSpy-Upstream-Bug #302
+                                            # ('initial cursor not found', offen/unfixbar von
+                                            # uns). An lassen — greift wieder nach Upstream-Fix.
   linkedin: false                           # rate-limited; bei Bedarf true + ggf. Proxy
   glassdoor: false
 
