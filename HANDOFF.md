@@ -1,12 +1,12 @@
 # HANDOFF — Jobsuche-Agent (Bewerbungshilfe)
 
 **Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-27 (Etappe 5 = Agenten-Roadmap E-B: FactGroundingAgent gebaut + verifiziert + eingehängt + committed; nächste Session = E-C JDParser/getrennte Writer/ATS mit Marek+Wolf)
-**Phase:** **Etappe 5 (Agenten-Roadmap E-B, FactGroundingAgent, Marek) ABGESCHLOSSEN** — Detail: `state/etappe_v5_state.md`. **Nächstes = E-C (JDParserAgent + getrennte Writer + ATS-Zwei-Pfad) in FRISCHEM Chat.**
-**Ziel-Session:** Claude Code CLI (nächste Etappe = Roadmap E-C / Marek+Wolf)
+**Phase:** **Etappe 5 (Agenten-Roadmap E-B, FactGroundingAgent, Marek) ABGESCHLOSSEN** + Google-Altlast diagnostiziert (#302). **Nächstes (User-Entscheid 2026-06-27): ZUERST crewai-Fix (eigene Etappe), DANN E-C** — beides je FRISCHER Chat.
+**Ziel-Session:** Claude Code CLI (nächste Etappe = crewai-Fix / Wolf; danach Roadmap E-C / Marek+Wolf)
 **Sprache:** Deutsch, technische Begriffe Englisch lassen
 **Repo:** öffentlich auf github.com/Lightnomad76/Bewerbungs-Agentenbaum — **PII-Dateien NIE pushen** (jobprofil.yaml, firmenhistorie_enriched.md, etappe_bewerbung_guetepruefer_state.md, treffer_v*.json/.csv mit echten Treffern, Lebensläufe/Anschreiben; alle gitignored). Memory: `github-repo-public`.
 
-!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN+COMMITTED(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer; Ausschluss nur im Titel = AUSSCHLUSS_FELDER, False-Positives behoben; commits da545d5+5e53391; _stable-ZIP v2 gezogen — siehe state); etappe-3=ABGESCHLOSSEN+COMMITTED(lokale HTML-Web-UI ui/index.html+app.js+style.css, edyta; JS-Bridge ../treffer_v2.example.js Default, Doppelklick/file:// kein Server; sortier-/filterbar, kann_treffer-Chips, ko-/Ausschluss-/Gehalt-Badges, null→k.A.; headless 16/16 + live in Chrome abgenommen 2026-06-27; nur ui/ committed, Bridge/Treffer gitignored — siehe state/etappe_v3_state.md); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); etappe-4=ABGESCHLOSSEN+COMMITTED(Roadmap E-A CriticAgent critic.py + verify_critic.py, Marek; deterministisch/offline/keine-API, flaggt-ändert-nichts; API pruefe()/hat_fehler() = Pipeline-Gate, CLI exit 1=FEHLER/0=sauber, --json; Floskel-Blacklist+Pflichtfelder=FEHLER, Adjektiv/Länge/7-Sek/Betreff=WARNUNG; verify 24/24 grün; live gegen echten Brief 346W 0F/0W = kein False-Positive; beide Dateien=Code/kein-PII committed; echter Brief nur gelesen — siehe state/etappe_v4_state.md); critic-eingehängt=JA(2026-06-27, in profile/gen_bewerbung_guetepruefer.py = LOKAL/gitignored/PII; build_anschreiben()->（pfad,text), pruefe()+report() nach Build, read-only flaggt-nur; critic.py _report->report committed; verify 24/24); etappe-5=ABGESCHLOSSEN+COMMITTED(Roadmap E-B FactGroundingAgent factground.py + verify_factground.py, Marek; deterministisch/offline/keine-API, flaggt-ändert-nichts; SCOPE-KORREKTUR: Wahrheitsquelle NICHT jobprofil.yaml=Suchprofil-ohne-CV-Fakten sondern CV-STAMMDATEN-REINGEFÜTTERT via sammle_fakten(*quellen); API pruefe(text,fakten)+hat_fehler()=Gate, CLI factground.py <text> <wahrheit...> exit1=FEHLER --json; Known-Facts-Whitelist: Firma-mit-Rechtsform-nicht-in-Historie+Erfahrungsdauer-N-Jahre-nicht-gedeckt=FEHLER, Akronym/Jahr-nicht-belegt=WARNUNG; verify 31/31 grün; live echter Brief 0F/0W kein-FP + Negativ-Kontrolle Thyssenkrupp/40Jahre/WIG geflaggt; beide Dateien Code/kein-PII committed — siehe state/etappe_v5_state.md); factground-eingehängt=JA(2026-06-27, in gen_bewerbung_guetepruefer.py LOKAL/gitignored/PII; fakten aus EXPERIENCE/ALPHA/WEITERE/SAMSON/COPERION/KURZPROFIL+STAMMDATEN_EXTRA+CV_DATE_LINE; nach build_anschreiben() neben critic; read-only flaggt-nur; end-to-end 0/0); agenten-roadmap-E-C=NÄCHSTE-EIGENE-FRISCHE-SESSION-MIT-MAREK+WOLF(JDParserAgent/KeywordExtractor + getrennte Writer CoverLetter/CVTailoring + ATS-Zwei-Pfad fest in ReportAgent; Grundlage state/agenten_roadmap.md A.3/A.4+C); etappe-optional=natives-Xing/Jobware-Scraping-Wolf(nur falls Google-Umweg unzureichend); public-repo=KEIN-PII-pushen
+!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN+COMMITTED(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer; Ausschluss nur im Titel = AUSSCHLUSS_FELDER, False-Positives behoben; commits da545d5+5e53391; _stable-ZIP v2 gezogen — siehe state); etappe-3=ABGESCHLOSSEN+COMMITTED(lokale HTML-Web-UI ui/index.html+app.js+style.css, edyta; JS-Bridge ../treffer_v2.example.js Default, Doppelklick/file:// kein Server; sortier-/filterbar, kann_treffer-Chips, ko-/Ausschluss-/Gehalt-Badges, null→k.A.; headless 16/16 + live in Chrome abgenommen 2026-06-27; nur ui/ committed, Bridge/Treffer gitignored — siehe state/etappe_v3_state.md); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); etappe-4=ABGESCHLOSSEN+COMMITTED(Roadmap E-A CriticAgent critic.py + verify_critic.py, Marek; deterministisch/offline/keine-API, flaggt-ändert-nichts; API pruefe()/hat_fehler() = Pipeline-Gate, CLI exit 1=FEHLER/0=sauber, --json; Floskel-Blacklist+Pflichtfelder=FEHLER, Adjektiv/Länge/7-Sek/Betreff=WARNUNG; verify 24/24 grün; live gegen echten Brief 346W 0F/0W = kein False-Positive; beide Dateien=Code/kein-PII committed; echter Brief nur gelesen — siehe state/etappe_v4_state.md); critic-eingehängt=JA(2026-06-27, in profile/gen_bewerbung_guetepruefer.py = LOKAL/gitignored/PII; build_anschreiben()->（pfad,text), pruefe()+report() nach Build, read-only flaggt-nur; critic.py _report->report committed; verify 24/24); etappe-5=ABGESCHLOSSEN+COMMITTED(Roadmap E-B FactGroundingAgent factground.py + verify_factground.py, Marek; deterministisch/offline/keine-API, flaggt-ändert-nichts; SCOPE-KORREKTUR: Wahrheitsquelle NICHT jobprofil.yaml=Suchprofil-ohne-CV-Fakten sondern CV-STAMMDATEN-REINGEFÜTTERT via sammle_fakten(*quellen); API pruefe(text,fakten)+hat_fehler()=Gate, CLI factground.py <text> <wahrheit...> exit1=FEHLER --json; Known-Facts-Whitelist: Firma-mit-Rechtsform-nicht-in-Historie+Erfahrungsdauer-N-Jahre-nicht-gedeckt=FEHLER, Akronym/Jahr-nicht-belegt=WARNUNG; verify 31/31 grün; live echter Brief 0F/0W kein-FP + Negativ-Kontrolle Thyssenkrupp/40Jahre/WIG geflaggt; beide Dateien Code/kein-PII committed — siehe state/etappe_v5_state.md); factground-eingehängt=JA(2026-06-27, in gen_bewerbung_guetepruefer.py LOKAL/gitignored/PII; fakten aus EXPERIENCE/ALPHA/WEITERE/SAMSON/COPERION/KURZPROFIL+STAMMDATEN_EXTRA+CV_DATE_LINE; nach build_anschreiben() neben critic; read-only flaggt-nur; end-to-end 0/0); crewai-fix=NÄCHSTE-EIGENE-FRISCHE-SESSION-ZUERST(User 2026-06-27; globale-py311-Env NICHT-Projekt-Code; regex-Konflikt crewai-will~=2026.1.15-vs-global-2024.11.6-von-JobSpy; numpy-1.26.3-geteilt; empfohlen=crewai-eigenes-venv statt global-reconcile=re-bricht-JobSpy; Wolf-Hut; Snapshot+Plan in Sofort-Einstieg); agenten-roadmap-E-C=DANACH-EIGENE-FRISCHE-SESSION-MIT-MAREK+WOLF(JDParserAgent/KeywordExtractor + getrennte Writer CoverLetter/CVTailoring + ATS-Zwei-Pfad fest in ReportAgent; Grundlage state/agenten_roadmap.md A.3/A.4+C); etappe-optional=natives-Xing/Jobware-Scraping-Wolf(nur falls Google-Umweg unzureichend); public-repo=KEIN-PII-pushen
 
 ---
 
@@ -16,7 +16,28 @@ Ein **read-only Job-Such- & Matching-Agent**: durchsucht Jobbörsen, scored die 
 gegen das Jobprofil des Users und liefert priorisierte Vorschläge. **Kein** Auto-Bewerben,
 **kein** Profil-Steuern (siehe Caveats).
 
-## Sofort-Einstieg nächste Etappe — Roadmap E-C (JDParser + getrennte Writer + ATS) (frischer Chat, Marek+Wolf)
+## Sofort-Einstieg NÄCHSTE Etappe — crewai-Fix (frischer Chat, Wolf-Hut) — ZUERST
+
+**Kontext:** Nicht Projekt-Code, sondern Aufräumen einer Nebenwirkung: JobSpy-Install (Etappe 1)
+hat global `regex 2026.1.15→2024.11.6` + `numpy 2.4.6→1.26.3` heruntergestuft → **crewai gebrochen**.
+**Read-only Env-Snapshot (2026-06-27, `py -3.11 -m pip show`):**
+- `numpy 1.26.3` — required-by: chromadb, lancedb, langchain-community, onnxruntime, pandas, **python-jobspy**
+- `regex 2024.11.6` — required-by: **crewai**, **python-jobspy**, tiktoken  ← der eigentliche Konflikt
+- `crewai 1.14.6` (will `regex~=2026.1.15`) · `python-jobspy 1.1.82`
+
+**Plan (Wolf):**
+1. **Env-Smoke zuerst:** `py -3.11 verify_engine.py` + `verify_match.py` exit 0 (JobSpy-Stack intakt) —
+   das ist die Baseline, die NICHT brechen darf.
+2. **Entscheid Isolation vs. Reconcile:** **empfohlen = crewai in eigenes venv** (volle Isolation,
+   0 Risiko für JobSpy). Reconcile im global-env (regex/numpy hochziehen) riskiert JobSpy-Re-Bruch —
+   nur wenn JobSpys echte Constraints (`pip show`/Metadaten) `regex 2026.x` + `numpy<2` zulassen;
+   vorher `lib-version-checker` gegen JobSpy-Kompat.
+3. Nach dem Fix: **beide** prüfen — JobSpy-Verifies grün **und** `py -3.11 -c "import crewai"` ok.
+4. Selbstcheck (§3.5) → „go" → `state/etappe_v<N>_state.md`. **Kein** Major-Upgrade blind (§ Quellen-Stand).
+
+---
+
+## Danach — Roadmap E-C (JDParser + getrennte Writer + ATS) (frischer Chat, Marek+Wolf)
 
 Etappe 1–5 fertig (Engine + MatchAgent + lokale Web-UI + CriticAgent + FactGroundingAgent). E-C =
 **eigene frische Session**, NICHT anhängen. Reihenfolge:
@@ -88,7 +109,8 @@ Etappe 1–5 fertig (Engine + MatchAgent + lokale Web-UI + CriticAgent + FactGro
 - **Agenten-Roadmap E-C — JDParser + getrennte Writer + ATS (Marek/Wolf): NÄCHSTE Etappe**, eigene frische Session. JDParserAgent/KeywordExtractor + CoverLetterWriter + CVTailoring + ATS-Zwei-Pfad fest in ReportAgent. Grundlage `state/agenten_roadmap.md` A.3/A.4 + C.
 - **Google-Quelle 0 Treffer — DIAGNOSTIZIERT 2026-06-27 (Marek):** JobSpy-Upstream-Bug [#302](https://github.com/speedyapply/JobSpy/issues/302) (`initial cursor not found`, offen/kein Fix, betrifft nur Google+ZipRecruiter), **nicht** unsere Query (5 Phrasen-Varianten alle 0 in ~0.2s, Indeed 39). Engine zeigt jetzt Pro-Quelle-Tally + Hinweis bei `google:0`; `jobprofil.example.yaml`-Kommentar ehrlich; Google-Default an gelassen (greift wieder nach Upstream-Fix). **Konsequenz:** Xing/Jobware-Umweg greift derzeit NICHT → Abdeckung allein aus Indeed. Memory `jobspy-google-broken`.
 - **Etappe (optional) — natives Xing/Jobware-Scraping (Wolf):** jetzt relevanter (Google-Umweg derzeit tot, s. o.) — angehen falls Indeed-Abdeckung zu dünn.
-- **Weiter offene Altlasten:** global-pip/crewai gebrochen (vertagt — globale Env, nicht Teil dieses Projekts; Fix = crewai eigenes venv); echter ATS-Parser-Durchlauf des CV-Outputs (§3.6a-Smoke — externer Upload, User-Aktion; ich kann nur docx + Checkliste vorbereiten).
+- **global-pip/crewai gebrochen → JETZT GEPLANT als nächste Etappe (ZUERST, eigener frischer Chat, Wolf):** Snapshot + Plan oben im Sofort-Einstieg. Globale Env, nicht Projekt-Code; empfohlen crewai eigenes venv.
+- **Weiter offene Altlast:** echter ATS-Parser-Durchlauf des CV-Outputs (§3.6a-Smoke — externer Upload, User-Aktion; Claude kann nur docx + Checkliste vorbereiten).
 
 ## Harte Caveats (Konfidenz-ehrlich)
 
