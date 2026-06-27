@@ -1,12 +1,12 @@
 # HANDOFF — Jobsuche-Agent (Bewerbungshilfe)
 
-**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-27 (Etappe 4 = Agenten-Roadmap E-A: CriticAgent gebaut + verifiziert + committed; nächste Session = E-B FactGroundingAgent mit Marek)
-**Phase:** **Etappe 4 (Agenten-Roadmap E-A, CriticAgent, Marek) ABGESCHLOSSEN** — Detail: `state/etappe_v4_state.md`. **Nächstes = E-B FactGroundingAgent (Marek) in FRISCHEM Chat.**
-**Ziel-Session:** Claude Code CLI (nächste Etappe = Roadmap E-B FactGroundingAgent / Marek)
+**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-27 (Etappe 5 = Agenten-Roadmap E-B: FactGroundingAgent gebaut + verifiziert + eingehängt + committed; nächste Session = E-C JDParser/getrennte Writer/ATS mit Marek+Wolf)
+**Phase:** **Etappe 5 (Agenten-Roadmap E-B, FactGroundingAgent, Marek) ABGESCHLOSSEN** — Detail: `state/etappe_v5_state.md`. **Nächstes = E-C (JDParserAgent + getrennte Writer + ATS-Zwei-Pfad) in FRISCHEM Chat.**
+**Ziel-Session:** Claude Code CLI (nächste Etappe = Roadmap E-C / Marek+Wolf)
 **Sprache:** Deutsch, technische Begriffe Englisch lassen
 **Repo:** öffentlich auf github.com/Lightnomad76/Bewerbungs-Agentenbaum — **PII-Dateien NIE pushen** (jobprofil.yaml, firmenhistorie_enriched.md, etappe_bewerbung_guetepruefer_state.md, treffer_v*.json/.csv mit echten Treffern, Lebensläufe/Anschreiben; alle gitignored). Memory: `github-repo-public`.
 
-!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN+COMMITTED(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer; Ausschluss nur im Titel = AUSSCHLUSS_FELDER, False-Positives behoben; commits da545d5+5e53391; _stable-ZIP v2 gezogen — siehe state); etappe-3=ABGESCHLOSSEN+COMMITTED(lokale HTML-Web-UI ui/index.html+app.js+style.css, edyta; JS-Bridge ../treffer_v2.example.js Default, Doppelklick/file:// kein Server; sortier-/filterbar, kann_treffer-Chips, ko-/Ausschluss-/Gehalt-Badges, null→k.A.; headless 16/16 + live in Chrome abgenommen 2026-06-27; nur ui/ committed, Bridge/Treffer gitignored — siehe state/etappe_v3_state.md); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); etappe-4=ABGESCHLOSSEN+COMMITTED(Roadmap E-A CriticAgent critic.py + verify_critic.py, Marek; deterministisch/offline/keine-API, flaggt-ändert-nichts; API pruefe()/hat_fehler() = Pipeline-Gate, CLI exit 1=FEHLER/0=sauber, --json; Floskel-Blacklist+Pflichtfelder=FEHLER, Adjektiv/Länge/7-Sek/Betreff=WARNUNG; verify 24/24 grün; live gegen echten Brief 346W 0F/0W = kein False-Positive; beide Dateien=Code/kein-PII committed; echter Brief nur gelesen — siehe state/etappe_v4_state.md); critic-eingehängt=JA(2026-06-27, in profile/gen_bewerbung_guetepruefer.py = LOKAL/gitignored/PII; build_anschreiben()->（pfad,text), pruefe()+report() nach Build, read-only flaggt-nur; critic.py _report->report committed; verify 24/24); agenten-roadmap-E-B=NÄCHSTE-EIGENE-FRISCHE-SESSION-MIT-MAREK(FactGroundingAgent gegen jobprofil.yaml; Grundlage state/agenten_roadmap.md A.2); etappe-optional=natives-Xing/Jobware-Scraping-Wolf(nur falls Google-Umweg unzureichend); public-repo=KEIN-PII-pushen
+!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN+COMMITTED(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer; Ausschluss nur im Titel = AUSSCHLUSS_FELDER, False-Positives behoben; commits da545d5+5e53391; _stable-ZIP v2 gezogen — siehe state); etappe-3=ABGESCHLOSSEN+COMMITTED(lokale HTML-Web-UI ui/index.html+app.js+style.css, edyta; JS-Bridge ../treffer_v2.example.js Default, Doppelklick/file:// kein Server; sortier-/filterbar, kann_treffer-Chips, ko-/Ausschluss-/Gehalt-Badges, null→k.A.; headless 16/16 + live in Chrome abgenommen 2026-06-27; nur ui/ committed, Bridge/Treffer gitignored — siehe state/etappe_v3_state.md); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); etappe-4=ABGESCHLOSSEN+COMMITTED(Roadmap E-A CriticAgent critic.py + verify_critic.py, Marek; deterministisch/offline/keine-API, flaggt-ändert-nichts; API pruefe()/hat_fehler() = Pipeline-Gate, CLI exit 1=FEHLER/0=sauber, --json; Floskel-Blacklist+Pflichtfelder=FEHLER, Adjektiv/Länge/7-Sek/Betreff=WARNUNG; verify 24/24 grün; live gegen echten Brief 346W 0F/0W = kein False-Positive; beide Dateien=Code/kein-PII committed; echter Brief nur gelesen — siehe state/etappe_v4_state.md); critic-eingehängt=JA(2026-06-27, in profile/gen_bewerbung_guetepruefer.py = LOKAL/gitignored/PII; build_anschreiben()->（pfad,text), pruefe()+report() nach Build, read-only flaggt-nur; critic.py _report->report committed; verify 24/24); etappe-5=ABGESCHLOSSEN+COMMITTED(Roadmap E-B FactGroundingAgent factground.py + verify_factground.py, Marek; deterministisch/offline/keine-API, flaggt-ändert-nichts; SCOPE-KORREKTUR: Wahrheitsquelle NICHT jobprofil.yaml=Suchprofil-ohne-CV-Fakten sondern CV-STAMMDATEN-REINGEFÜTTERT via sammle_fakten(*quellen); API pruefe(text,fakten)+hat_fehler()=Gate, CLI factground.py <text> <wahrheit...> exit1=FEHLER --json; Known-Facts-Whitelist: Firma-mit-Rechtsform-nicht-in-Historie+Erfahrungsdauer-N-Jahre-nicht-gedeckt=FEHLER, Akronym/Jahr-nicht-belegt=WARNUNG; verify 31/31 grün; live echter Brief 0F/0W kein-FP + Negativ-Kontrolle Thyssenkrupp/40Jahre/WIG geflaggt; beide Dateien Code/kein-PII committed — siehe state/etappe_v5_state.md); factground-eingehängt=JA(2026-06-27, in gen_bewerbung_guetepruefer.py LOKAL/gitignored/PII; fakten aus EXPERIENCE/ALPHA/WEITERE/SAMSON/COPERION/KURZPROFIL+STAMMDATEN_EXTRA+CV_DATE_LINE; nach build_anschreiben() neben critic; read-only flaggt-nur; end-to-end 0/0); agenten-roadmap-E-C=NÄCHSTE-EIGENE-FRISCHE-SESSION-MIT-MAREK+WOLF(JDParserAgent/KeywordExtractor + getrennte Writer CoverLetter/CVTailoring + ATS-Zwei-Pfad fest in ReportAgent; Grundlage state/agenten_roadmap.md A.3/A.4+C); etappe-optional=natives-Xing/Jobware-Scraping-Wolf(nur falls Google-Umweg unzureichend); public-repo=KEIN-PII-pushen
 
 ---
 
@@ -16,20 +16,24 @@ Ein **read-only Job-Such- & Matching-Agent**: durchsucht Jobbörsen, scored die 
 gegen das Jobprofil des Users und liefert priorisierte Vorschläge. **Kein** Auto-Bewerben,
 **kein** Profil-Steuern (siehe Caveats).
 
-## Sofort-Einstieg nächste Etappe — Roadmap E-B FactGroundingAgent (frischer Chat, mit Marek)
+## Sofort-Einstieg nächste Etappe — Roadmap E-C (JDParser + getrennte Writer + ATS) (frischer Chat, Marek+Wolf)
 
-Etappe 1–4 fertig (Engine + MatchAgent + lokale Web-UI + CriticAgent). E-B = **eigene frische Session
-mit Marek**, NICHT anhängen. Reihenfolge:
-0. **ZUERST lesen:** `state/agenten_roadmap.md` — Recherche-Befunde (Critic/FactGrounding/JDParser-Erweiterung,
-   ATS-Zwei-Pfad-CV, Stil-Checkliste). Das ist die Arbeitsgrundlage.
-1. **Lesen:** dieses HANDOFF + `state/etappe_v3_state.md` (Ist-Stand UI) + `state/etappe_v2_state.md` (Engine/Match).
-2. **Environment-Smoke (§3.11):** `py -3.11 verify_engine.py` UND `py -3.11 verify_match.py` exit 0.
-3. **Mit Marek** den Roadmap-Umfang in eine konkrete Etappe schneiden (Session-Budget ~150k beachten,
-   ggf. splitten). Scope-Grenze beachten: read-only, login-frei, Keyword-Scoring offline — Semantik/API nur
-   bewusst+optional. brief-writer für den Etappen-Brief, falls der Umfang groß wird.
+Etappe 1–5 fertig (Engine + MatchAgent + lokale Web-UI + CriticAgent + FactGroundingAgent). E-C =
+**eigene frische Session**, NICHT anhängen. Reihenfolge:
+0. **ZUERST lesen:** `state/agenten_roadmap.md` — Recherche-Befunde (JDParser-Erweiterung,
+   getrennte Writer, ATS-Zwei-Pfad-CV/Abschnitt C, Stil-Checkliste). Das ist die Arbeitsgrundlage.
+1. **Lesen:** dieses HANDOFF + `state/etappe_v5_state.md` (FactGrounding) + `state/etappe_v4_state.md`
+   (Critic) + bei Bedarf `state/etappe_v2_state.md` (Engine/Match).
+2. **Environment-Smoke (§3.11):** `py -3.11 verify_engine.py` UND `py -3.11 verify_match.py` UND
+   `py -3.11 verify_critic.py` UND `py -3.11 verify_factground.py` exit 0.
+3. **Mit Marek (Wolf bei ATS/Parsing)** den Roadmap-Umfang in eine konkrete Etappe schneiden
+   (Session-Budget ~150k beachten, ggf. splitten — JDParser + 2 Writer + ATS ist groß, brief-writer
+   nutzen). Scope-Grenze: read-only, login-frei, deterministisch/offline — Semantik/API nur bewusst+optional.
 4. Selbstcheck (§3.5) → auf „go"/„ZIP" warten → `state/etappe_v<N>_state.md`.
-- **Alternativ** optionale **Etappe 4** (natives Xing/Jobware-Scraping, Wolf) — nur falls Google-Umweg-
+- **Alternativ** optionale Etappe (natives Xing/Jobware-Scraping, Wolf) — nur falls Google-Umweg-
   Abdeckung später unzureichend; aktuell nicht priorisiert.
+- **Muster für E-C:** critic.py + factground.py sind die belegten Vorbilder (deterministisch, offline,
+  `pruefe()`/`hat_fehler()`-Gate, CLI + importierbare API, eigenes `verify_*.py`, flaggt-ändert-nichts).
 
 ## Etappe 3 — Abschluss-Stand (erledigt 2026-06-27)
 - **Lokale HTML-Web-UI (edyta)** unter `ui/` — `index.html` + `app.js` + `style.css`, vanilla, keine
@@ -80,8 +84,9 @@ mit Marek**, NICHT anhängen. Reihenfolge:
 - **Etappe 3 — Lokale HTML-Web-UI (edyta): ✅ ERLEDIGT 2026-06-27.** `ui/index.html`+`app.js`+`style.css`, vanilla, JS-Bridge/Doppelklick (`file://`, kein Server), sortier-/filterbar, `kann_treffer`-Chips + Warn-Badges, null→„k.A."; headless 16/16 + live in Chrome abgenommen. Nur `ui/` committed, Bridge/Treffer gitignored. Detail: `state/etappe_v3_state.md`.
 - **Agenten-Roadmap E-A — CriticAgent (Marek): ✅ ERLEDIGT 2026-06-27.** `critic.py` (deterministisch/offline, keine API, flaggt-ändert-nichts) + `verify_critic.py` (24/24 grün); Pipeline-Gate `pruefe()`/`hat_fehler()`, CLI exit 1=FEHLER/0=sauber, `--json`. Live gegen echten Brief: 346 W, 0 Fehler/0 Warnungen (kein False-Positive). Detail: `state/etappe_v4_state.md`.
 - **Critic in Pipeline eingehängt: ✅ ERLEDIGT 2026-06-27** — in `profile/gen_bewerbung_guetepruefer.py` (lokal/gitignored/PII): nach `build_anschreiben()` läuft `pruefe()`+`report()`, read-only (flaggt, ändert nichts). Nur `critic.py` (`report`-Rename) committed. Detail: `state/etappe_v4_state.md`.
-- **Agenten-Roadmap E-B — FactGroundingAgent (Marek): NÄCHSTE Etappe**, eigene frische Session (NICHT anhängen). Jede generierte Aussage → auf `jobprofil.yaml`-Feld rückführbar, sonst geflaggt. Grundlage `state/agenten_roadmap.md` A.2.
-- **Etappe 4 (optional) — natives Xing/Jobware-Scraping (Wolf):** nur falls Google-Umweg-Abdeckung später unzureichend.
+- **Agenten-Roadmap E-B — FactGroundingAgent (Marek): ✅ ERLEDIGT 2026-06-27.** `factground.py` (deterministisch/offline, keine API, flaggt-ändert-nichts) + `verify_factground.py` (31/31 grün). **Scope-Korrektur:** Wahrheitsquelle = **CV-Stammdaten reingefüttert** (nicht `jobprofil.yaml` = Suchprofil ohne CV-Fakten); API `sammle_fakten(*quellen)` + `pruefe(text, fakten)` + `hat_fehler()`. Known-Facts-Whitelist: Firma-mit-Rechtsform-nicht-in-Historie + Erfahrungsdauer-nicht-gedeckt = FEHLER; Akronym/Jahr-nicht-belegt = WARNUNG. Live: echter Brief 0F/0W (kein FP) + Negativ-Kontrolle geflaggt. In Generator eingehängt (lokal/PII). Detail: `state/etappe_v5_state.md`.
+- **Agenten-Roadmap E-C — JDParser + getrennte Writer + ATS (Marek/Wolf): NÄCHSTE Etappe**, eigene frische Session. JDParserAgent/KeywordExtractor + CoverLetterWriter + CVTailoring + ATS-Zwei-Pfad fest in ReportAgent. Grundlage `state/agenten_roadmap.md` A.3/A.4 + C.
+- **Etappe (optional) — natives Xing/Jobware-Scraping (Wolf):** nur falls Google-Umweg-Abdeckung später unzureichend.
 
 ## Harte Caveats (Konfidenz-ehrlich)
 
