@@ -1,12 +1,12 @@
 # HANDOFF — Jobsuche-Agent (Bewerbungshilfe)
 
-**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-27 (Etappe 3 lokale Web-UI abgeschlossen + live in Chrome abgenommen + committed; nächste Session = Agenten-Roadmap mit Marek)
-**Phase:** **Etappe 3 (lokale HTML-Web-UI, edyta) ABGESCHLOSSEN** — Detail: `state/etappe_v3_state.md`. **Nächstes = Agenten-Roadmap (Marek) in FRISCHEM Chat.**
-**Ziel-Session:** Claude Code CLI (nächste Etappe = Agenten-Roadmap / Marek)
+**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-27 (Etappe 4 = Agenten-Roadmap E-A: CriticAgent gebaut + verifiziert + committed; nächste Session = E-B FactGroundingAgent mit Marek)
+**Phase:** **Etappe 4 (Agenten-Roadmap E-A, CriticAgent, Marek) ABGESCHLOSSEN** — Detail: `state/etappe_v4_state.md`. **Nächstes = E-B FactGroundingAgent (Marek) in FRISCHEM Chat.**
+**Ziel-Session:** Claude Code CLI (nächste Etappe = Roadmap E-B FactGroundingAgent / Marek)
 **Sprache:** Deutsch, technische Begriffe Englisch lassen
 **Repo:** öffentlich auf github.com/Lightnomad76/Bewerbungs-Agentenbaum — **PII-Dateien NIE pushen** (jobprofil.yaml, firmenhistorie_enriched.md, etappe_bewerbung_guetepruefer_state.md, treffer_v*.json/.csv mit echten Treffern, Lebensläufe/Anschreiben; alle gitignored). Memory: `github-repo-public`.
 
-!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN+COMMITTED(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer; Ausschluss nur im Titel = AUSSCHLUSS_FELDER, False-Positives behoben; commits da545d5+5e53391; _stable-ZIP v2 gezogen — siehe state); etappe-3=ABGESCHLOSSEN+COMMITTED(lokale HTML-Web-UI ui/index.html+app.js+style.css, edyta; JS-Bridge ../treffer_v2.example.js Default, Doppelklick/file:// kein Server; sortier-/filterbar, kann_treffer-Chips, ko-/Ausschluss-/Gehalt-Badges, null→k.A.; headless 16/16 + live in Chrome abgenommen 2026-06-27; nur ui/ committed, Bridge/Treffer gitignored — siehe state/etappe_v3_state.md); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); agenten-roadmap=NÄCHSTE-EIGENE-FRISCHE-SESSION-MIT-MAREK(User-Entscheid 2026-06-24, NICHT anhängen; Grundlage state/agenten_roadmap.md: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad); etappe-4-optional=natives-Xing/Jobware-Scraping-Wolf(nur falls Google-Umweg unzureichend); public-repo=KEIN-PII-pushen
+!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN+COMMITTED(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer; Ausschluss nur im Titel = AUSSCHLUSS_FELDER, False-Positives behoben; commits da545d5+5e53391; _stable-ZIP v2 gezogen — siehe state); etappe-3=ABGESCHLOSSEN+COMMITTED(lokale HTML-Web-UI ui/index.html+app.js+style.css, edyta; JS-Bridge ../treffer_v2.example.js Default, Doppelklick/file:// kein Server; sortier-/filterbar, kann_treffer-Chips, ko-/Ausschluss-/Gehalt-Badges, null→k.A.; headless 16/16 + live in Chrome abgenommen 2026-06-27; nur ui/ committed, Bridge/Treffer gitignored — siehe state/etappe_v3_state.md); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); etappe-4=ABGESCHLOSSEN+COMMITTED(Roadmap E-A CriticAgent critic.py + verify_critic.py, Marek; deterministisch/offline/keine-API, flaggt-ändert-nichts; API pruefe()/hat_fehler() = Pipeline-Gate, CLI exit 1=FEHLER/0=sauber, --json; Floskel-Blacklist+Pflichtfelder=FEHLER, Adjektiv/Länge/7-Sek/Betreff=WARNUNG; verify 24/24 grün; live gegen echten Brief 346W 0F/0W = kein False-Positive; beide Dateien=Code/kein-PII committed; echter Brief nur gelesen — siehe state/etappe_v4_state.md); agenten-roadmap-E-B=NÄCHSTE-EIGENE-FRISCHE-SESSION-MIT-MAREK(FactGroundingAgent gegen jobprofil.yaml; optional davor Critic in gen_bewerbung_guetepruefer.py einhängen; Grundlage state/agenten_roadmap.md A.2); etappe-optional=natives-Xing/Jobware-Scraping-Wolf(nur falls Google-Umweg unzureichend); public-repo=KEIN-PII-pushen
 
 ---
 
@@ -16,10 +16,10 @@ Ein **read-only Job-Such- & Matching-Agent**: durchsucht Jobbörsen, scored die 
 gegen das Jobprofil des Users und liefert priorisierte Vorschläge. **Kein** Auto-Bewerben,
 **kein** Profil-Steuern (siehe Caveats).
 
-## Sofort-Einstieg nächste Etappe — Agenten-Roadmap (frischer Chat, mit Marek)
+## Sofort-Einstieg nächste Etappe — Roadmap E-B FactGroundingAgent (frischer Chat, mit Marek)
 
-Etappe 1–3 fertig (Engine + MatchAgent + lokale Web-UI). User-Entscheid 2026-06-24: die Roadmap ist
-eine **eigene frische Session mit Marek**, NICHT anhängen. Reihenfolge:
+Etappe 1–4 fertig (Engine + MatchAgent + lokale Web-UI + CriticAgent). E-B = **eigene frische Session
+mit Marek**, NICHT anhängen. Reihenfolge:
 0. **ZUERST lesen:** `state/agenten_roadmap.md` — Recherche-Befunde (Critic/FactGrounding/JDParser-Erweiterung,
    ATS-Zwei-Pfad-CV, Stil-Checkliste). Das ist die Arbeitsgrundlage.
 1. **Lesen:** dieses HANDOFF + `state/etappe_v3_state.md` (Ist-Stand UI) + `state/etappe_v2_state.md` (Engine/Match).
@@ -78,7 +78,8 @@ eine **eigene frische Session mit Marek**, NICHT anhängen. Reihenfolge:
 - **Etappe 2 — MatchAgent (Marek): ✅ ERLEDIGT 2026-06-25.** `match.py` (offline Keyword-Scoring), Fixes K1/K2/S1 angewandt (S2 war bereits korrekt), `verify_engine.py` erweitert + `verify_match.py` neu (34 Checks grün). Live: 2.78s, 35 Treffer, sinnvolles Ranking. `skills_muss` bewusst **leer** gesetzt (Zwei-Berufsrichtungen-Profil hat keinen sinnvollen UND-K.o.-Term; Berufs-Keywords als Bonus). Output `treffer_v2.json/.csv`. Detail: `state/etappe_v2_state.md`.
   - **Restpunkte (nicht blockierend):** Ausschluss `"Ausbildung"` zu breit (matcht „abgeschlossene Ausbildung"); Google weiter 0 (S3 — JobSpy-seitig, vor Debugging via `lib-version-checker` offene Issues checken); `_stable`-ZIP + Commit ausstehend (auf User-go).
 - **Etappe 3 — Lokale HTML-Web-UI (edyta): ✅ ERLEDIGT 2026-06-27.** `ui/index.html`+`app.js`+`style.css`, vanilla, JS-Bridge/Doppelklick (`file://`, kein Server), sortier-/filterbar, `kann_treffer`-Chips + Warn-Badges, null→„k.A."; headless 16/16 + live in Chrome abgenommen. Nur `ui/` committed, Bridge/Treffer gitignored. Detail: `state/etappe_v3_state.md`.
-- **Agenten-Roadmap (Marek): NÄCHSTE Etappe**, eigene frische Session (User-Entscheid 2026-06-24, NICHT anhängen). Grundlage `state/agenten_roadmap.md`: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad-CV.
+- **Agenten-Roadmap E-A — CriticAgent (Marek): ✅ ERLEDIGT 2026-06-27.** `critic.py` (deterministisch/offline, keine API, flaggt-ändert-nichts) + `verify_critic.py` (24/24 grün); Pipeline-Gate `pruefe()`/`hat_fehler()`, CLI exit 1=FEHLER/0=sauber, `--json`. Live gegen echten Brief: 346 W, 0 Fehler/0 Warnungen (kein False-Positive). Detail: `state/etappe_v4_state.md`.
+- **Agenten-Roadmap E-B — FactGroundingAgent (Marek): NÄCHSTE Etappe**, eigene frische Session (NICHT anhängen). Jede generierte Aussage → auf `jobprofil.yaml`-Feld rückführbar, sonst geflaggt. Optional davor: Critic in `gen_bewerbung_guetepruefer.py` einhängen. Grundlage `state/agenten_roadmap.md` A.2.
 - **Etappe 4 (optional) — natives Xing/Jobware-Scraping (Wolf):** nur falls Google-Umweg-Abdeckung später unzureichend.
 
 ## Harte Caveats (Konfidenz-ehrlich)
