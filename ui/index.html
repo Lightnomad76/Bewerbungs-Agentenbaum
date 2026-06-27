@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job-Treffer — Bewerbungs-Agentenbaum</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!--
+    DATEN-BRIDGE (kein fetch, kein Server — laeuft per Doppelklick / file://).
+    Default = anonymisierte Fixture. Zum Umschalten auf ECHTE Treffer:
+      - die example-Zeile auskommentieren
+      - die treffer_v2.js-Zeile aktivieren
+    Beide Dateien liegen im Projekt-Root, daher der ../-Pfad.
+    WICHTIG: klassisches <script> (kein type="module") — Module unterliegen
+    auf file:// der CORS-Sperre, klassische Scripts nicht.
+  -->
+  <script src="../treffer_v2.example.js"></script>
+  <!-- <script src="../treffer_v2.js"></script> -->
+
+  <header class="app-head" id="appHead">
+    <!-- via JS befuellt -->
+  </header>
+
+  <section class="controls" id="controls" aria-label="Filter und Sortierung">
+    <div class="control">
+      <label for="sortSel">Sortierung</label>
+      <select id="sortSel">
+        <option value="score_desc">Score (hoch &rarr; niedrig)</option>
+        <option value="score_asc">Score (niedrig &rarr; hoch)</option>
+        <option value="date_desc">Datum (neueste zuerst)</option>
+        <option value="date_asc">Datum (aelteste zuerst)</option>
+      </select>
+    </div>
+
+    <div class="control">
+      <label for="scoreRange">Min-Score: <span id="scoreVal" class="mono">—</span></label>
+      <input type="range" id="scoreRange" step="1">
+    </div>
+
+    <div class="control">
+      <label for="titelSel">Such-Titel</label>
+      <select id="titelSel">
+        <option value="__all__">Alle</option>
+      </select>
+    </div>
+
+    <div class="control control--grow">
+      <label for="searchInp">Freitext-Suche</label>
+      <input type="search" id="searchInp" placeholder="Titel, Firma, Ort, Skill, Beschreibung…" autocomplete="off">
+    </div>
+
+    <div class="control control--check">
+      <label><input type="checkbox" id="hideAusschluss"> Ausschluss-Treffer ausblenden</label>
+    </div>
+
+    <div class="control control--reset">
+      <button type="button" id="resetBtn">Zuruecksetzen</button>
+    </div>
+  </section>
+
+  <p class="result-count" id="resultCount" aria-live="polite"></p>
+
+  <main class="results" id="results" aria-live="polite">
+    <!-- Treffer-Karten via JS -->
+  </main>
+
+  <noscript>
+    <p class="error-box">Diese Ansicht braucht JavaScript (rein lokal, keine Netzverbindung).</p>
+  </noscript>
+
+  <script src="app.js"></script>
+</body>
+</html>

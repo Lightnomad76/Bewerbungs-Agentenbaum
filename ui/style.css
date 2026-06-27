@@ -1,0 +1,381 @@
+/* =========================================================================
+   Bewerbungs-Agentenbaum — Job-Treffer UI
+   Design: hell / nuechtern / lese- und druckfreundlich.
+   Token-getrieben (CSS Custom Properties = einzige Quelle). Keine Hex-Werte
+   direkt in Komponenten. System-Fontstack, keine externen Assets.
+   ========================================================================= */
+
+:root {
+  /* --- color: surface / ink --- */
+  --color-surface:      #f4f5f7;   /* App-Hintergrund */
+  --color-panel:        #ffffff;   /* Karten / Controls */
+  --color-ink:          #1b1f24;   /* Haupttext */
+  --color-ink-muted:    #5b6470;   /* Sekundaertext */
+  --color-ink-faint:    #8a929d;   /* Tertiaer / Platzhalter */
+  --color-line:         #dce0e6;   /* Trennlinien / Rahmen */
+  --color-line-strong:  #c2c8d0;
+
+  /* --- color: accent (Score = ruhiger Akzent) --- */
+  --color-accent:       #2f5d8a;   /* gedecktes Blau */
+  --color-accent-soft:  #e7eef6;
+  --color-accent-ink:   #1c3f60;
+
+  /* --- color: semantik (Score-Stufen) --- */
+  --color-pos:          #2f6b46;   /* gut */
+  --color-pos-soft:     #e4f0e8;
+  --color-neutral:      #5b6470;   /* niedrig, aber positiv */
+  --color-neutral-soft: #eceef1;
+  --color-neg:          #8a5a1c;   /* negativ / schwach */
+  --color-neg-soft:     #f5ebdd;
+
+  /* --- color: warnungen --- */
+  --color-warn:         #9a3526;   /* ko / harte Warnung */
+  --color-warn-soft:    #f6e4e1;
+  --color-warn-line:    #e3bcb4;
+  --color-info:         #4a5360;   /* muss_fehlt (info, kein Alarm) */
+  --color-info-soft:    #eceef1;
+
+  /* --- color: chips (kann_treffer, dezent) --- */
+  --color-chip-bg:      #eef1f5;
+  --color-chip-ink:     #3a434f;
+  --color-chip-line:    #dde2e8;
+
+  /* --- space (8er-Rhythmus) --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* --- radius --- */
+  --radius-1: 4px;
+  --radius-2: 8px;
+  --radius-pill: 999px;
+
+  /* --- shadow (minimal, nuechtern) --- */
+  --shadow-card: 0 1px 2px rgba(20, 28, 38, 0.05), 0 1px 1px rgba(20, 28, 38, 0.04);
+
+  /* --- type --- */
+  --type-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --type-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
+  --type-xs:  12px;
+  --type-sm:  13px;
+  --type-base:15px;
+  --type-md:  17px;
+  --type-lg:  21px;
+  --type-xl:  27px;
+
+  /* --- layout --- */
+  --maxw: 2400px;          /* breit fuers Ultrawide, aber nicht endlos */
+  --card-min: 30rem;       /* Mindestbreite einer Karte im Grid */
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 16px; }
+
+body {
+  margin: 0;
+  padding: 0 var(--space-5) var(--space-7);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--type-family);
+  font-size: var(--type-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono { font-family: var(--type-mono); }
+
+a { color: var(--color-accent-ink); }
+
+/* ------------------------------------------------------------------ Kopf */
+.app-head {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: var(--space-6) 0 var(--space-4);
+  border-bottom: 2px solid var(--color-line-strong);
+}
+.app-head h1 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--type-xl);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.meta-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  font-size: var(--type-sm);
+  color: var(--color-ink-muted);
+}
+.meta-grid .meta-item { display: flex; gap: var(--space-2); align-items: baseline; }
+.meta-grid .meta-key { color: var(--color-ink-faint); }
+.meta-grid .meta-val { color: var(--color-ink); font-weight: 550; }
+.source-tag {
+  display: inline-block;
+  padding: 1px var(--space-2);
+  margin-right: var(--space-1);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-ink);
+  border-radius: var(--radius-pill);
+  font-size: var(--type-xs);
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------- Controls */
+.controls {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-4);
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-top: none;
+  border-radius: 0 0 var(--radius-2) var(--radius-2);
+  box-shadow: var(--shadow-card);
+}
+.control { display: flex; flex-direction: column; gap: var(--space-1); }
+.control--grow { flex: 1 1 16rem; min-width: 12rem; }
+.control--check { flex-direction: row; align-items: center; align-self: flex-end; padding-bottom: var(--space-1); }
+.control--reset { margin-left: auto; align-self: flex-end; }
+.control label {
+  font-size: var(--type-xs);
+  color: var(--color-ink-muted);
+  font-weight: 600;
+}
+.control--check label {
+  font-size: var(--type-sm);
+  color: var(--color-ink);
+  cursor: pointer;
+  display: flex; align-items: center; gap: var(--space-2);
+}
+
+select, input[type="search"], input[type="range"], button {
+  font-family: inherit;
+  font-size: var(--type-sm);
+  color: var(--color-ink);
+}
+select, input[type="search"] {
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-panel);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-1);
+  min-height: 34px;
+}
+input[type="search"] { width: 100%; }
+input[type="range"] { width: 12rem; accent-color: var(--color-accent); }
+select:focus-visible, input:focus-visible, button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+button {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-panel);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-1);
+  min-height: 34px;
+  cursor: pointer;
+}
+button:hover { background: var(--color-surface); border-color: var(--color-ink-faint); }
+
+.result-count {
+  max-width: var(--maxw);
+  margin: var(--space-4) auto var(--space-2);
+  font-size: var(--type-sm);
+  color: var(--color-ink-muted);
+}
+
+/* --------------------------------------------------------------- Results */
+.results {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min), 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+.empty-state {
+  grid-column: 1 / -1;
+  padding: var(--space-7) var(--space-4);
+  text-align: center;
+  color: var(--color-ink-muted);
+  background: var(--color-panel);
+  border: 1px dashed var(--color-line-strong);
+  border-radius: var(--radius-2);
+}
+
+/* ----------------------------------------------------------------- Karte */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-left: 4px solid var(--color-line-strong);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-card);
+}
+/* Score-Stufe faerbt nur die linke Kante (ruhiger Akzent) */
+.card.is-strong  { border-left-color: var(--color-pos); }
+.card.is-mid     { border-left-color: var(--color-accent); }
+.card.is-low     { border-left-color: var(--color-neutral); }
+.card.is-neg     { border-left-color: var(--color-neg); }
+.card.is-ko      { border-left-color: var(--color-warn); }
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+.card-title {
+  margin: 0;
+  font-size: var(--type-md);
+  font-weight: 650;
+  line-height: 1.3;
+}
+.card-title a { text-decoration: none; }
+.card-title a:hover { text-decoration: underline; }
+.card-title a::after {
+  content: "\2197";           /* nach-rechts-oben Pfeil = neuer Tab */
+  font-size: 0.8em;
+  margin-left: 4px;
+  color: var(--color-ink-faint);
+}
+
+/* Score-Pill */
+.score {
+  flex: 0 0 auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.4rem;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-2);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.score .score-num { font-size: var(--type-lg); font-weight: 700; }
+.score .score-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.8; }
+.score.s-strong { background: var(--color-pos-soft);     color: var(--color-pos); }
+.score.s-mid    { background: var(--color-accent-soft);  color: var(--color-accent-ink); }
+.score.s-low    { background: var(--color-neutral-soft); color: var(--color-neutral); }
+.score.s-neg    { background: var(--color-neg-soft);     color: var(--color-neg); }
+
+.card-sub {
+  font-size: var(--type-sm);
+  color: var(--color-ink-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+.card-sub .sub-strong { color: var(--color-ink); font-weight: 600; }
+
+.via-line { font-size: var(--type-xs); color: var(--color-ink-faint); }
+.via-line .via-titel { color: var(--color-ink-muted); }
+
+/* Badges (Warnungen + Info) */
+.badges { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--type-xs);
+  font-weight: 650;
+  border: 1px solid transparent;
+}
+.badge::before { font-weight: 700; }
+.badge--ko        { background: var(--color-warn-soft); color: var(--color-warn); border-color: var(--color-warn-line); }
+.badge--ko::before        { content: "\26D4"; }   /* no-entry */
+.badge--ausschluss { background: var(--color-warn-soft); color: var(--color-warn); border-color: var(--color-warn-line); }
+.badge--ausschluss::before { content: "\26A0"; }  /* warning */
+.badge--gehalt    { background: var(--color-neg-soft); color: var(--color-neg); }
+.badge--gehalt::before    { content: "\20AC"; }   /* euro */
+.badge--info      { background: var(--color-info-soft); color: var(--color-info); }
+
+/* kann_treffer-Chips (Hauptsignal, dezent) */
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chip {
+  padding: 2px var(--space-3);
+  background: var(--color-chip-bg);
+  color: var(--color-chip-ink);
+  border: 1px solid var(--color-chip-line);
+  border-radius: var(--radius-pill);
+  font-size: var(--type-xs);
+  font-weight: 550;
+}
+.chips-label {
+  font-size: var(--type-xs);
+  color: var(--color-ink-faint);
+  margin-bottom: var(--space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Beschreibung ein-/ausklappbar (native <details>, funktioniert ohne JS) */
+.desc { font-size: var(--type-sm); }
+.desc > summary {
+  cursor: pointer;
+  color: var(--color-accent-ink);
+  font-weight: 600;
+  list-style: none;
+  user-select: none;
+}
+.desc > summary::-webkit-details-marker { display: none; }
+.desc > summary::before { content: "\25B8  "; }       /* Dreieck zu */
+.desc[open] > summary::before { content: "\25BE  "; } /* Dreieck auf */
+.desc[open] > summary { margin-bottom: var(--space-2); }
+.desc p {
+  margin: 0;
+  color: var(--color-ink-muted);
+  white-space: pre-wrap;
+}
+
+.muted { color: var(--color-ink-faint); }
+
+.error-box {
+  max-width: var(--maxw);
+  margin: var(--space-5) auto;
+  padding: var(--space-4);
+  background: var(--color-warn-soft);
+  color: var(--color-warn);
+  border: 1px solid var(--color-warn-line);
+  border-radius: var(--radius-2);
+}
+
+/* ------------------------------------------------------ schmale Viewports */
+@media (max-width: 640px) {
+  body { padding: 0 var(--space-3) var(--space-6); }
+  .controls { gap: var(--space-3); }
+  .control--reset { margin-left: 0; }
+  :root { --card-min: 100%; }
+}
+
+/* ------------------------------------------------------------ Druck-Layout */
+@media print {
+  body { background: #fff; padding: 0; }
+  .controls, .result-count summary { display: none !important; }
+  .controls { display: none !important; }
+  .results { display: block; }
+  .card {
+    box-shadow: none;
+    border: 1px solid #bbb;
+    break-inside: avoid;
+    margin-bottom: var(--space-4);
+  }
+  .desc[open] p, .desc p { white-space: pre-wrap; }
+  a { color: #000; }
+}

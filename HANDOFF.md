@@ -1,12 +1,12 @@
 # HANDOFF — Jobsuche-Agent (Bewerbungshilfe)
 
-**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-25 (Etappe 2 abgeschlossen + committed + _stable-ZIP; Ausschluss-Fix nachgezogen; geschärft für Etappe 3 Web-UI)
-**Phase:** **Etappe 2 (MatchAgent) ABGESCHLOSSEN** — Detail: `state/etappe_v2_state.md`. **Nächstes = Etappe 3 (lokale HTML-Web-UI, edyta) in FRISCHEM Chat.**
-**Ziel-Session:** Claude Code CLI (Etappe 3 = edyta / GUI-Hut)
+**Erstellt:** 2026-06-22 · **Aktualisiert:** 2026-06-27 (Etappe 3 lokale Web-UI abgeschlossen + live in Chrome abgenommen + committed; nächste Session = Agenten-Roadmap mit Marek)
+**Phase:** **Etappe 3 (lokale HTML-Web-UI, edyta) ABGESCHLOSSEN** — Detail: `state/etappe_v3_state.md`. **Nächstes = Agenten-Roadmap (Marek) in FRISCHEM Chat.**
+**Ziel-Session:** Claude Code CLI (nächste Etappe = Agenten-Roadmap / Marek)
 **Sprache:** Deutsch, technische Begriffe Englisch lassen
 **Repo:** öffentlich auf github.com/Lightnomad76/Bewerbungs-Agentenbaum — **PII-Dateien NIE pushen** (jobprofil.yaml, firmenhistorie_enriched.md, etappe_bewerbung_guetepruefer_state.md, treffer_v*.json/.csv mit echten Treffern, Lebensläufe/Anschreiben; alle gitignored). Memory: `github-repo-public`.
 
-!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN+COMMITTED(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer; Ausschluss nur im Titel = AUSSCHLUSS_FELDER, False-Positives behoben; commits da545d5+5e53391; _stable-ZIP v2 gezogen — siehe state); etappe-3=EIGENE-FRISCHE-SESSION-MIT-EDYTA(lokale HTML-Web-UI, lädt treffer_v2.json, sortiert/filterbar; brief-writer für v3-Brief); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); agenten-roadmap=EIGENE-NEUE-SESSION-MIT-MAREK(User-Entscheid 2026-06-24, NICHT anhängen; Grundlage state/agenten_roadmap.md: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad); public-repo=KEIN-PII-pushen
+!ETAPPE-GATE: etappe-1=ABGESCHLOSSEN; etappe-2=ABGESCHLOSSEN+COMMITTED(MatchAgent match.py + Fixes K1/K2/S1 + verify_match.py; live 35 Treffer/2.78s; skills_muss bewusst leer; Ausschluss nur im Titel = AUSSCHLUSS_FELDER, False-Positives behoben; commits da545d5+5e53391; _stable-ZIP v2 gezogen — siehe state); etappe-3=ABGESCHLOSSEN+COMMITTED(lokale HTML-Web-UI ui/index.html+app.js+style.css, edyta; JS-Bridge ../treffer_v2.example.js Default, Doppelklick/file:// kein Server; sortier-/filterbar, kann_treffer-Chips, ko-/Ausschluss-/Gehalt-Badges, null→k.A.; headless 16/16 + live in Chrome abgenommen 2026-06-27; nur ui/ committed, Bridge/Treffer gitignored — siehe state/etappe_v3_state.md); live-jobspy-run=netz-posten(billig ~2.8s, kein laufzeit-gate); agenten-roadmap=NÄCHSTE-EIGENE-FRISCHE-SESSION-MIT-MAREK(User-Entscheid 2026-06-24, NICHT anhängen; Grundlage state/agenten_roadmap.md: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad); etappe-4-optional=natives-Xing/Jobware-Scraping-Wolf(nur falls Google-Umweg unzureichend); public-repo=KEIN-PII-pushen
 
 ---
 
@@ -16,17 +16,31 @@ Ein **read-only Job-Such- & Matching-Agent**: durchsucht Jobbörsen, scored die 
 gegen das Jobprofil des Users und liefert priorisierte Vorschläge. **Kein** Auto-Bewerben,
 **kein** Profil-Steuern (siehe Caveats).
 
-## Sofort-Einstieg Etappe 3 — lokale HTML-Web-UI (frischer Chat, mit edyta)
+## Sofort-Einstieg nächste Etappe — Agenten-Roadmap (frischer Chat, mit Marek)
 
-Etappe 2 läuft (35 reale Treffer, gescort; `verify_engine.py` + `verify_match.py` grün). Reihenfolge:
-0. **ZUERST lesen:** `briefs/etappe_v3_brief.md` — vollständiger v3-Kontext-Brief (UI-Vertrag, Erkenntnisse, file://-Constraint, Dev-Host-UI, Workflow). Ersetzt die Chat-Historie.
-1. **Lesen:** dieses HANDOFF + `state/etappe_v2_state.md` (Ist-Stand Engine+MatchAgent).
-2. **Environment-Smoke (§3.11):** `py -3.11 verify_engine.py` UND `py -3.11 verify_match.py` müssen exit 0 sein.
-3. **UI bauen (edyta / GUI-Hut):** statisches HTML/JS im Projektordner, lädt `treffer_v2.json` (Schema: `{meta, treffer[]}`; jeder Treffer hat `match.{score,ko,muss_treffer,muss_fehlt,kann_treffer,ausschluss_treffer,gehalt_unter_min}` + Kernfelder title/company/location/job_url/date_posted/min_amount/max_amount/description/such_titel[Liste]). Sortierbar nach Score, filterbar (z.B. Ausschluss ein/aus, Min-Score), Skill-Treffer sichtbar.
-4. **Lokales Laden ENTSCHIEDEN = JS-Bridge:** `main.py` schreibt `treffer_v2.js` (`window.TREFFER=…`); UI per `<script src>` einbinden, Doppelklick, kein Server. Entwickeln gegen committbare Fixtures `treffer_v2.example.json/.js`. Design = **hell/nüchtern**.
-5. Selbstcheck (§3.5) → auf „ZIP"/„go" warten → `state/etappe_v3_state.md`.
-- **v3-Brief liegt vor:** `briefs/etappe_v3_brief.md` (kein brief-writer-Spawn mehr nötig).
-- **Achtung public Repo:** `treffer_v2.json/.csv` (+ etwaige `treffer_v2.js`-Bridge) enthalten echte Treffer → vor `git push` prüfen, dass weder die noch andere PII getrackt werden (gitignored halten).
+Etappe 1–3 fertig (Engine + MatchAgent + lokale Web-UI). User-Entscheid 2026-06-24: die Roadmap ist
+eine **eigene frische Session mit Marek**, NICHT anhängen. Reihenfolge:
+0. **ZUERST lesen:** `state/agenten_roadmap.md` — Recherche-Befunde (Critic/FactGrounding/JDParser-Erweiterung,
+   ATS-Zwei-Pfad-CV, Stil-Checkliste). Das ist die Arbeitsgrundlage.
+1. **Lesen:** dieses HANDOFF + `state/etappe_v3_state.md` (Ist-Stand UI) + `state/etappe_v2_state.md` (Engine/Match).
+2. **Environment-Smoke (§3.11):** `py -3.11 verify_engine.py` UND `py -3.11 verify_match.py` exit 0.
+3. **Mit Marek** den Roadmap-Umfang in eine konkrete Etappe schneiden (Session-Budget ~150k beachten,
+   ggf. splitten). Scope-Grenze beachten: read-only, login-frei, Keyword-Scoring offline — Semantik/API nur
+   bewusst+optional. brief-writer für den Etappen-Brief, falls der Umfang groß wird.
+4. Selbstcheck (§3.5) → auf „go"/„ZIP" warten → `state/etappe_v<N>_state.md`.
+- **Alternativ** optionale **Etappe 4** (natives Xing/Jobware-Scraping, Wolf) — nur falls Google-Umweg-
+  Abdeckung später unzureichend; aktuell nicht priorisiert.
+
+## Etappe 3 — Abschluss-Stand (erledigt 2026-06-27)
+- **Lokale HTML-Web-UI (edyta)** unter `ui/` — `index.html` + `app.js` + `style.css`, vanilla, keine
+  Dependencies, hell/nüchtern, Ultrawide-Card-Grid. JS-Bridge (`../treffer_v2.example.js` Default,
+  echte `treffer_v2.js` umschaltbar), Doppelklick/`file://`, kein Server.
+- Sortier-/filterbar (Score/Datum, Min-Score-Slider, Such-Titel, Freitext, Ausschluss-Toggle);
+  `kann_treffer`-Chips, ko-/Ausschluss-/Gehalt-Warn-Badges, null→„k.A.".
+- **Test:** headless 16/16 gegen Fixtures + `node --check` grün; **live in Chrome abgenommen** (User).
+- **Committed:** nur `ui/`-Code (+ State/HANDOFF). Bridge/echte Treffer gitignored (per `check-ignore`
+  bestätigt). Bedien-Hinweis: nackten Pfad NICHT in Chrome-Adresszeile tippen (→ Suche); Explorer-
+  Doppelklick oder `file:///…/ui/index.html`. Detail: `state/etappe_v3_state.md`.
 
 ## Etappe 2 — Abschluss-Stand (erledigt)
 - **Committed:** `da545d5` (MatchAgent + Fixes K1/K2/S1), `5e53391` (Ausschluss nur im Titel, False-Positives behoben). `_stable`-ZIP `Bewerbungs-Agentenbaum_v2_stable.zip` gezogen (lokal, gitignored).
@@ -63,7 +77,8 @@ Etappe 2 läuft (35 reale Treffer, gescort; `verify_engine.py` + `verify_match.p
   - Offen: Google-Query nachjustieren oder Indeed-only; `_stable`-ZIP via `make_backup.py` vor v2 noch nicht erzeugt.
 - **Etappe 2 — MatchAgent (Marek): ✅ ERLEDIGT 2026-06-25.** `match.py` (offline Keyword-Scoring), Fixes K1/K2/S1 angewandt (S2 war bereits korrekt), `verify_engine.py` erweitert + `verify_match.py` neu (34 Checks grün). Live: 2.78s, 35 Treffer, sinnvolles Ranking. `skills_muss` bewusst **leer** gesetzt (Zwei-Berufsrichtungen-Profil hat keinen sinnvollen UND-K.o.-Term; Berufs-Keywords als Bonus). Output `treffer_v2.json/.csv`. Detail: `state/etappe_v2_state.md`.
   - **Restpunkte (nicht blockierend):** Ausschluss `"Ausbildung"` zu breit (matcht „abgeschlossene Ausbildung"); Google weiter 0 (S3 — JobSpy-seitig, vor Debugging via `lib-version-checker` offene Issues checken); `_stable`-ZIP + Commit ausstehend (auf User-go).
-- **Etappe 3 — Lokale HTML-Web-UI (edyta):** statisches HTML/JS im Projektordner, lädt die gescorte JSON, zeigt sortiert/filterbar. `brief-writer` für v3-Brief.
+- **Etappe 3 — Lokale HTML-Web-UI (edyta): ✅ ERLEDIGT 2026-06-27.** `ui/index.html`+`app.js`+`style.css`, vanilla, JS-Bridge/Doppelklick (`file://`, kein Server), sortier-/filterbar, `kann_treffer`-Chips + Warn-Badges, null→„k.A."; headless 16/16 + live in Chrome abgenommen. Nur `ui/` committed, Bridge/Treffer gitignored. Detail: `state/etappe_v3_state.md`.
+- **Agenten-Roadmap (Marek): NÄCHSTE Etappe**, eigene frische Session (User-Entscheid 2026-06-24, NICHT anhängen). Grundlage `state/agenten_roadmap.md`: Critic/FactGrounding/JDParser + ATS-Zwei-Pfad-CV.
 - **Etappe 4 (optional) — natives Xing/Jobware-Scraping (Wolf):** nur falls Google-Umweg-Abdeckung später unzureichend.
 
 ## Harte Caveats (Konfidenz-ehrlich)
