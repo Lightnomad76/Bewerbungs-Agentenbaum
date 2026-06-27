@@ -223,7 +223,7 @@ def hat_fehler(result: dict) -> bool:
 _SCHWERE_LABEL = {"fehler": "FEHLER", "warnung": "WARNUNG"}
 
 
-def _report(pfad: str, result: dict) -> str:
+def report(pfad: str, result: dict) -> str:
     s = result["stats"]
     out = []
     out.append("=== CriticAgent — Stil-/Pflichtfeld-Pruefung ===")
@@ -265,7 +265,7 @@ def main(argv):
     if "--json" in flags:
         print(json.dumps({"datei": pfad, **result}, ensure_ascii=False, indent=2))
     else:
-        print(_report(pfad, result))
+        print(report(pfad, result))
     return 1 if hat_fehler(result) else 0
 
 

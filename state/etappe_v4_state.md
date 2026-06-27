@@ -58,6 +58,19 @@
 - Der echte Brief `profile/Anschreiben_Guetepruefer_v2.md` wurde nur **gelesen** (Live-Test), **nicht**
   eingecheckt (PII, gitignored bzw. nur lokal).
 
+## Nachgezogen 2026-06-27 — Critic in die Bewerbungs-Pipeline eingehängt
+
+- **`profile/gen_bewerbung_guetepruefer.py`** (lokal, PII, **gitignored**): Anschreiben-Textbausteine
+  in Variablen gehoistet → **eine Quelle** für docx **und** Critic (kein Drift). Nach `build_anschreiben()`
+  (gibt jetzt `(pfad, text)` zurück) läuft `pruefe()` auf dem assemblierten Volltext; `report()` druckt
+  den Befund, bei FEHLER ein Versand-Hinweis. **Read-only:** das Dokument wird nie geändert, nur geflaggt.
+  Import via Repo-Root-`sys.path`-Insert (Generator läuft aus `profile/`).
+- **`critic.py`:** `_report` → öffentliches `report()` (sauberer Fremd-Import). `verify_critic.py` danach
+  weiter 24/24 grün.
+- **Live:** Generator end-to-end (`py -3.11`), 4 Dokumente gebaut, Critic auf Anschreiben → 329 Wörter,
+  0 Fehler/0 Warnungen.
+- **PII-Grenze:** nur `critic.py` ist committed; die Generator-Integration bleibt lokal (gitignored).
+
 ## Known Issues / Offene Punkte
 
 - **Critic nicht in Pipeline eingehängt** (Standalone) — Mini-Etappe, Schnittstelle steht.
