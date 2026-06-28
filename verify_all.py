@@ -23,7 +23,8 @@ GLOBAL_PY = ["py", "-3.11"]
 
 # Verifies, die NICHT über das venv laufen (Grund in Klammern):
 GLOBAL_PY_VERIFIES = {
-    "verify_ats_lint.py",  # braucht python-docx (global installiert, nicht im venv)
+    "verify_ats_lint.py",            # braucht python-docx (global installiert, nicht im venv)
+    "verify_extract_quellordner.py", # braucht python-docx + pdfplumber + pymupdf (global, nicht im venv)
 }
 
 

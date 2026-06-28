@@ -32,3 +32,7 @@ venv/
 # Personenbezogene Projekt-Artefakte (nicht ins oeffentliche Repo)
 profile/firmenhistorie_enriched.md
 state/etappe_bewerbung_guetepruefer_state.md
+
+# Quellordner-Corpus (extract_quellordner.py-Output) — echte Zeugnis-/CV-Inhalte = PII
+profile/quellordner_corpus.txt
+profile/quellordner_corpus.*
