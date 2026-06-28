@@ -28,6 +28,38 @@ GEWICHT_KANN = 3
 MALUS_AUSSCHLUSS = 8
 MALUS_KO = 100          # hält ko-Treffer klar unter den vollständigen
 MALUS_GEHALT = 5
+MALUS_NICHT_QUALIFIZIERT = 50  # Job verlangt Studium ohne Ausbildungs-/Quereinsteiger-Pfad
+
+# Kern-Beruf-Wörter (v13): ein ECHTER Job-Titel mit einem dieser Wörter = Trade/QS-Job,
+# für den der Bewerber qualifiziert ist -> NIE wegen "Studium verlangt" abgewertet.
+# (NICHT gegen such_titel prüfen — das ist unsere eigene Query.)
+KERN_BERUF = [
+    "mechaniker", "mechatronik", "schlosser", "industriemechan", "zerspan", "cnc",
+    "instandhalt", "wartung", "montage", "monteur", "prüf", "güteprüf", "qualität",
+    "fertigung", "produktion", "maschinen", "anlagen", "metall", "schweiß", "löt",
+    "elektr", "werker", "feinwerk", "techniker", "hydraulik", "pneumatik",
+]
+
+# Qualifikations-Gate (v13, User-Modell): Büro-/Nicht-Trade-Jobs NICHT pauschal raus.
+# Abwertung NUR, wenn ein Job ein Studium VERLANGT und KEINEN Ausbildungs- oder
+# Quereinsteiger-Pfad bietet — denn dafür fehlt die formale Qualifikation (kein
+# abgeschlossenes Studium; Journalismus-Studium nicht beendet). Quereinsteiger-Jobs
+# und Jobs ohne Studienzwang bleiben (auch Büro), Trade-Jobs sowieso.
+# Studium-Anforderung breit erkennen (freistehend, mit Adjektiv dazwischen, Uni/Hochschul/Grade).
+STUDIUM_RE = re.compile(
+    r"\bstudium\b|studiums\b|studien(?:gang|abschluss)|hochschul|universit|"
+    r"\bbachelor\b|\bmaster\b|\bdiplom\b|akademische[rn]?\s+(?:grad|abschluss)|"
+    r"\bm\.?\s?sc\b|\bb\.?\s?sc\b|\bmba\b",
+    re.IGNORECASE)
+# Alternativ-Pfad: Quereinsteiger ODER echte Ausbildungs-Alternative (NICHT bloßes
+# "Weiterbildung" -> deshalb präzise, kein nacktes "ausbildung"-Substring).
+ALT_PFAD_RE = re.compile(
+    r"quereinsteig|kein\s+studium|auch\s+ohne\s+studium|ohne\s+(?:abgeschlossenes\s+)?studium|"
+    r"berufserfahrung\s+statt\s+studium|ungelernt|"
+    r"(?:berufs)?ausbildung\s+oder\s+(?:ein\s+)?studium|"
+    r"studium\s+oder\s+(?:eine\s+|eine\s+vergleichbare\s+|vergleichbare\s+)?(?:berufs)?ausbildung|"
+    r"abgeschlossene[rn]?\s+(?:berufs)?ausbildung",
+    re.IGNORECASE)
 
 # Distanz-Scoring (v13, deterministisch/offline — keine API/Geocoding-Calls).
 # Bänder relativ zum Profil-Umkreis: nah = mehr Bonus, weit = Malus. Ein
@@ -82,6 +114,7 @@ class MatchProfil:
     standort: str | None = None   # Heimatort -> Distanz-Scoring (None = aus)
     umkreis_km: int = 50          # Profil-Radius -> Distanz-Bänder
     max_distanz_km: int | None = None  # harte Obergrenze: weiter entfernte Treffer NICHT anzeigen
+    kern_beruf: list[str] | None = None  # Trade/QS-Titel -> nie wegen Studienzwang abgewertet
 
 
 def _norm(s: object) -> str:
@@ -177,6 +210,16 @@ def bewerte_einen(t: dict, pm: MatchProfil) -> dict:
             except (TypeError, ValueError):
                 pass  # unparsebarer Betrag -> neutral
 
+    # Qualifikations-Gate: Büro-Jobs NICHT pauschal raus — nur abwerten, wenn ein
+    # Studium VERLANGT wird UND kein Trade-Titel / Ausbildungs- / Quereinsteiger-Pfad
+    # da ist (dann fehlt die formale Qualifikation). Trade/QS-Titel sind immer ok.
+    titel_norm = _feld_text(t, ("title",))
+    trade_titel = any(_norm(k) in titel_norm for k in (pm.kern_beruf or []) if k)
+    nicht_qualifiziert = False
+    if not trade_titel and STUDIUM_RE.search(text) and not ALT_PFAD_RE.search(text):
+        nicht_qualifiziert = True
+        score -= MALUS_NICHT_QUALIFIZIERT
+
     # Distanz-Scoring (nur wenn Heimatort gesetzt UND beide Orte auflösbar; sonst neutral)
     distanz_km = None
     distanz_score = 0
@@ -202,6 +245,7 @@ def bewerte_einen(t: dict, pm: MatchProfil) -> dict:
         "distanz_km": distanz_km,
         "distanz_score": distanz_score,
         "zu_weit": zu_weit,
+        "nicht_qualifiziert": nicht_qualifiziert,
     }
     return out
 

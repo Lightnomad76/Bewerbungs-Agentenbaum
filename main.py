@@ -20,7 +20,7 @@ import pandas as pd
 import yaml
 from jobspy import scrape_jobs
 
-from match import MatchProfil, bewerte_treffer, zaehle_ausgeblendet
+from match import MatchProfil, bewerte_treffer, zaehle_ausgeblendet, KERN_BERUF
 
 BASE = Path(__file__).resolve().parent
 PROFIL_PFAD = BASE / "profile" / "jobprofil.yaml"
@@ -93,6 +93,7 @@ def lade_profil(pfad: Path = PROFIL_PFAD) -> Profil:
         standort=person.get("standort", ""),
         umkreis_km=int(person.get("umkreis_km", 50)),
         max_distanz_km=matching_roh.get("max_distanz_km"),
+        kern_beruf=_liste("kern_beruf") or KERN_BERUF,
     )
 
     return Profil(

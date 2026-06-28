@@ -139,6 +139,41 @@ def test_distanz() -> None:
     check(match.zaehle_ausgeblendet(jobs, PM_GEO) == 1, "zaehle_ausgeblendet == 1")
 
 
+PM_QUAL = match.MatchProfil(
+    skills_muss=[], skills_kann=["SAP"], ausschluss_keywords=[],
+    gehalt_min_eur_jahr=None, kern_beruf=["Industriemechaniker", "Mechatroniker", "Qualität"],
+)
+
+
+def test_qualifikation() -> None:
+    print("[7] Qualifikations-Gate (Studium verlangt vs. Quereinsteiger/Ausbildung)")
+    trade = match.bewerte_einen(_job(
+        title="Industriemechaniker (m/w/d)",
+        description="Abgeschlossenes Studium erforderlich."), PM_QUAL)
+    check(trade["match"]["nicht_qualifiziert"] is False,
+          "Trade-Titel bleibt qualifiziert, auch wenn Text 'Studium' nennt")
+
+    buero = match.bewerte_einen(_job(
+        title="Senior Consultant (m/w/d)",
+        description="Abgeschlossenes Studium der Informatik erforderlich. SAP."), PM_QUAL)
+    check(buero["match"]["nicht_qualifiziert"] is True, "Büro-Job mit Studienzwang -> nicht_qualifiziert")
+    check(buero["match"]["score"] < trade["match"]["score"], "Studienzwang-Büro sinkt unter Trade")
+
+    quer = match.bewerte_einen(_job(
+        title="Vertriebsmitarbeiter (m/w/d)",
+        description="Abgeschlossenes Studium oder Quereinsteiger willkommen. SAP."), PM_QUAL)
+    check(quer["match"]["nicht_qualifiziert"] is False, "Quereinsteiger-Pfad -> bleibt qualifiziert")
+
+    azubi = match.bewerte_einen(_job(
+        title="Sachbearbeiter (m/w/d)",
+        description="Studium oder abgeschlossene Ausbildung."), PM_QUAL)
+    check(azubi["match"]["nicht_qualifiziert"] is False, "Ausbildungs-Alternative -> bleibt qualifiziert")
+
+    plain = match.bewerte_einen(_job(
+        title="Verkäufer (m/w/d)", description="Freundliches Auftreten, Teamgeist."), PM_QUAL)
+    check(plain["match"]["nicht_qualifiziert"] is False, "Büro-Job ohne Studienzwang bleibt (Quereinsteiger möglich)")
+
+
 def main() -> int:
     print("=== verify_match.py (offline MatchAgent-Selbsttest) ===")
     test_muss_ko()
@@ -148,6 +183,7 @@ def main() -> int:
     test_gehalt()
     test_sortierung()
     test_distanz()
+    test_qualifikation()
     print("---")
     if FEHLER:
         print(f"ROT: {len(FEHLER)} Fehler")
