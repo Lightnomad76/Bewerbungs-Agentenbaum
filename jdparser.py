@@ -118,6 +118,12 @@ KEYWORD_KATALOG = {
         ("Chargenverfolgung", r"chargen?\b|chargennummer|chargenrückverf"),
         ("Nacharbeit", r"nacharbeit"),
         ("Nichtkonformität", r"nicht-?konformität|nonkonformität|abweichungsbericht"),
+        # v14: belegt durch die echten Arbeitszeugnisse (extract_quellordner-Corpus) —
+        # Messuhr (Amicus/Karl Mayer "Wirkhebel mittels Messuhren"), Prüfvorschrift
+        # (IAV "Prüfung nach Prüfvorschrift"), Prüfmittel(-überwachung) = Standard-QS-Lücken.
+        ("Messuhr", r"messuhr(?:en)?"),
+        ("Prüfvorschrift", r"prüfvorschrift|prüfanweisung"),
+        ("Prüfmittel", r"prüfmittel(?:überwachung)?"),
     ],
     "steuerung_it": [
         ("SPS", r"\bsps\b|speicherprogrammierbar"),

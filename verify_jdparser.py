@@ -141,12 +141,18 @@ def main():
         "- Bedienung der Koordinatenmessmaschine (CMM)\n"
         "- Kenntnis ISO 9001 und IATF 16949 erforderlich\n"
         "- Umgang mit Messschieber und Mikrometer\n"
+        "- Bauteilmontage und Prüfung nach Prüfvorschrift mit Messuhr\n"
+        "- Prüfmittelüberwachung\n"
     )
     qsf = keywords_flach(qs)
     ok("FMEA" in qsf and "SPC" in qsf and "8D-Report" in qsf, "FMEA/SPC/8D erkannt", qsf)
     ok("Koordinatenmessmaschine" in qsf, "CMM -> Koordinatenmessmaschine")
     ok("ISO 9001" in qsf and "IATF 16949" in qsf, "Normen erkannt", qsf)
     ok("Messschieber" in qsf and "Mikrometer" in qsf, "Messmittel erkannt")
+    # v14: belegt durch echte Arbeitszeugnisse (IAV/Amicus) — neue mess_qs-Begriffe.
+    ok("Messuhr" in qsf, "Messuhr erkannt (Zeugnis-belegt)", qsf)
+    ok("Prüfvorschrift" in qsf, "Prüfvorschrift erkannt (Zeugnis-belegt)", qsf)
+    ok("Prüfmittel" in qsf, "Prüfmittel(überwachung) erkannt", qsf)
     ok("ISO 9001" in qs["anforderungen"]["muss"], "ISO-Zeile mit 'erforderlich' -> MUSS",
        qs["anforderungen"]["muss"])
 
