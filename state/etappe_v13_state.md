@@ -44,9 +44,30 @@
   Anrede führen („Sehr geehrte <Vorname Nachname>") → Folgeschaden. Aktuelles Verhalten
   (None + neutraler Fallback) ist das sichere; nur mit Geschlechts-Erkennung gefahrlos lösbar.
 
+## Nachgezogen Teil 2 — Live-Suche + Scoring-Härtung (gleiche Session)
+- **Live-Jobsuche gefahren** (`.venv\Scripts\python.exe main.py`): 39 reale Indeed-Treffer
+  (Google weiter Upstream-Bug #302). Ergebnis-Diagnose deckte zwei Scoring-Schwächen auf.
+- **Distanz-Scoring (commit 59386df):** `match.py` GEO-Tabelle (Rhein-Main+Umland) + Haversine,
+  offline/kein-Geocoding-API. Distanz als Score-Band relativ zum Umkreis. **`max_distanz_km`
+  = harte Obergrenze** (Treffer darüber ausgeblendet; unauflösbare Orte BLEIBEN = kein stiller
+  Drop). `jobprofil.yaml: max_distanz_km: 30` (PII). match-Dict: distanz_km/distanz_score/zu_weit.
+- **Präzisions-Gate (commit 1f4726c):** Büro-Jobs NICHT pauschal raus — Abwertung NUR bei
+  Studienzwang OHNE Trade-Titel/Ausbildungs-/Quereinsteiger-Pfad (User-Modell: nur raus, wo
+  formale Qualifikation fehlt). KERN_BERUF (Trade-Whitelist), STUDIUM_RE (breit), ALT_PFAD_RE
+  (Quereinsteiger/Ausbildungs-Alternative, kein „Weiterbildung"-Fehltreffer). nicht_qualifiziert-Flag.
+  Journalismus(unbeendet)/Quereinsteiger als kann-Signal in yaml. verify_match +13 Checks (test_distanz,
+  test_qualifikation). Effekt live: Trade+zugängliche Jobs oben, Studium-Pflicht-Büro versenkt.
+- **Jobbörsen-Landschaft (User-Frage):** ohne API-Key in JobSpy = Indeed(✅)/Google(⚠️#302)/
+  LinkedIn(⚠️429)/Glassdoor(⚠️). Eigener Scraper (Wolf, eigene Session) = StepStone(Bot-Schutz)/
+  Xing/Jobware/meinestadt(Aggregator). **service.bund.de = bester Neuzugang** (geprüft: offener
+  RSS-Feed `RSSGenerator_Stellen.xml`, kein Login, öD = geringste Grauzone, RSS statt Voll-Scraper).
+
 ## Offene Punkte / nächste kleine Posten
 - **Auto-Writer-Kosmetik:** deterministischer coverletter listet „Deutsch" als „Schwerpunkt"
-  (Sprache ≠ Schwerpunkt) — Sprachen-Keywords in der Schwerpunkt-Zeile ausklammern.
+  (Sprache ≠ Schwerpunkt; User-Entscheid 2026-06-28: Deutsch SOLL Schwerpunkt bleiben → kein Fix nötig).
+- **GEO-Tabelle erweitern** bei neuen Orten (unauflösbare bleiben neutral/sichtbar).
+- **service.bund.de RSS-Quelle anbinden** (Wolf, eigene Session, Netz-Posten) — kleiner als Scraper.
+- **Distanz/Qualifikation als UI-Badges** (Felder distanz_km/nicht_qualifiziert liegen im JSON bereit).
 - **Inhaltliche CV-Ergänzung (User-Aktion):** Bullet „Chargen nach DIN EN 10204" bei Samson aufnehmen
   (belegt, deckt eine MUSS-Anforderung; read-only Tool ergänzt bewusst keine Inhalte).
 - Altlasten unverändert: echter externer ATS-Parser-Durchlauf (§3.6a, User-Aktion);
