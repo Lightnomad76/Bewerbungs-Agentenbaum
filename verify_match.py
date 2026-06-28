@@ -126,6 +126,15 @@ def test_distanz() -> None:
     check(nah["match"]["distanz_score"] > fern["match"]["distanz_score"], "nah > fern im Distanz-Score")
     check(unbk["match"]["distanz_km"] is None, "unbekannter Ort -> distanz_km None")
     check(unbk["match"]["zu_weit"] is False, "unbekannter Ort wird NICHT zu_weit-geflaggt")
+    # v16: neuer Pendel-Belt (Wikipedia-belegte Koordinaten) — vormals unbekannte
+    # Nachbarorte werden jetzt korrekt als nah erkannt statt distanz-neutral.
+    heu = match.bewerte_einen(_job(title="Industriemechaniker", location="63150 Heusenstamm, HE, DE"), PM_GEO)
+    check(heu["match"]["distanz_km"] is not None and heu["match"]["distanz_km"] < 8,
+          f"Heusenstamm ~4km erkannt (ist {heu['match']['distanz_km']})")
+    check(heu["match"]["zu_weit"] is False, "Heusenstamm <=30km -> nicht zu_weit")
+    kahl = match.bewerte_einen(_job(title="Industriemechaniker", location="Kahl am Main, BY, DE"), PM_GEO)
+    check(kahl["match"]["distanz_km"] is not None and kahl["match"]["distanz_km"] < 20,
+          f"Kahl am Main erkannt (ist {kahl['match']['distanz_km']})")
     jobs = [
         _job(title="nah", location="Offenbach am Main, HE, DE"),
         _job(title="fern", location="Mannheim, BW, DE"),

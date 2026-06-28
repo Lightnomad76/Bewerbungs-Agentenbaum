@@ -95,6 +95,17 @@ GEO = {
     "kreuzwertheim": (49.762, 9.435), "wertheim": (49.759, 9.514),
     "bad homburg": (50.227, 8.618), "friedberg": (50.339, 8.756),
     "langen": (49.992, 8.659), "dreieich": (50.022, 8.700),
+    # v16: Pendel-Belt im ~25-km-Umkreis Obertshausen (Koordinaten belegt via
+    # de.wikipedia.org, 2026-06-28; keine geratenen Werte — §3.10).
+    "heusenstamm": (50.059, 8.807), "neu-isenburg": (50.056, 8.697),
+    "egelsbach": (49.969, 8.667), "rödermark": (49.977, 8.828),
+    "mörfelden-walldorf": (49.989, 8.566), "maintal": (50.150, 8.833),
+    "großkrotzenburg": (50.082, 8.985), "hainburg": (50.077, 8.953),
+    "dieburg": (49.898, 8.838), "babenhausen": (49.962, 8.953),
+    "karlstein am main": (50.049, 9.018), "karlstein": (50.049, 9.018),
+    "kahl am main": (50.068, 9.007), "erlensee": (50.164, 8.981),
+    "bruchköbel": (50.183, 8.917), "nidderau": (50.227, 8.875),
+    "bad vilbel": (50.178, 8.735),
 }
 
 # Felder, deren Text für Skill-Scoring durchsucht wird (breit = gewollt)
