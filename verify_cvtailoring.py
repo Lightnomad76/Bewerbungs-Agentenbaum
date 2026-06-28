@@ -89,9 +89,10 @@ def main():
     jd, abg, res = _baue()
 
     print("--- Schema / Grundstruktur ---")
-    for k in ("stationen", "weggelassen", "relevant_keywords", "muss_fehlt", "stats"):
+    for k in ("stationen", "weggelassen", "relevant_keywords", "muss_fehlt", "stats", "reihenfolge"):
         check(k in res, "Top-Level-Key vorhanden: " + k)
     check(len(res["stationen"]) == 2, "2 Stationen im Output")
+    check(res["reihenfolge"] == "relevanz", "Default-Reihenfolge == relevanz")
 
     print("--- abgleich-Durchreichung ---")
     check(res["relevant_keywords"] == sorted(set(abg["vorhanden"])),
@@ -175,6 +176,40 @@ def main():
     check(json.dumps(res, ensure_ascii=False, sort_keys=True)
           == json.dumps(res3, ensure_ascii=False, sort_keys=True),
           "priorisiere == priorisiere_fuer_anzeige (Bequemlichkeits-Pfad)")
+
+    print("--- Chronologische vs. Relevanz-Reihenfolge ---")
+    # Diskriminierende Fixture: ältere Station (idx1) relevanter als neuere (idx0).
+    bew_chrono = {"stationen": [
+        {"firma": "Neu AG", "zeitraum": "2020–2024",
+         "taetigkeiten": ["Allgemeine Büroarbeiten"], "skills": []},          # idx0, Score 0
+        {"firma": "Alt GmbH", "zeitraum": "2010–2014",
+         "taetigkeiten": ["CNC-Fräsen und Drehen", "Wartung und Instandhaltung"],
+         "skills": []},                                                        # idx1, hoher Score
+    ]}
+    abg_c = abgleich(jd, parse(_bewerber_als_text(bew_chrono)))
+    rel = priorisiere(bew_chrono, jd, abg_c)                                   # Default relevanz
+    chr_ = priorisiere(bew_chrono, jd, abg_c, station_reihenfolge="chronologisch")
+    check(rel["reihenfolge"] == "relevanz" and chr_["reihenfolge"] == "chronologisch",
+          "reihenfolge-Feld spiegelt den Modus")
+    check(rel["stationen"][0]["firma"] == "Alt GmbH",
+          "relevanz: relevantere (ältere) Station steht oben")
+    check(chr_["stationen"][0]["firma"] == "Neu AG",
+          "chronologisch: neuere Station (original_index 0) steht oben")
+    idxs = [s["original_index"] for s in chr_["stationen"]]
+    check(idxs == sorted(idxs), "chronologisch: Stationen in Original-Reihenfolge")
+    alt_c = next(s for s in chr_["stationen"] if s["firma"] == "Alt GmbH")
+    check(alt_c["bullets"][0]["text"].startswith("CNC"),
+          "chronologisch: Bullets stationsintern weiter relevanz-sortiert (CNC oben)")
+    score_rel = {s["firma"]: s["score"] for s in rel["stationen"]}
+    score_chr = {s["firma"]: s["score"] for s in chr_["stationen"]}
+    check(score_rel == score_chr, "Scores identisch in beiden Modi (nur Reihenfolge differiert)")
+    in_alt = set(t.strip() for t in bew_chrono["stationen"][1]["taetigkeiten"])
+    out_alt = set(b["text"] for b in alt_c["bullets"]) | set(b["text"] for b in alt_c["weggelassen"])
+    check(out_alt == in_alt, "chronologisch: Read-only-Invariante hält ebenfalls")
+    bad = priorisiere(bew_chrono, jd, abg_c, station_reihenfolge="quatsch")
+    check(bad["reihenfolge"] == "relevanz", "ungültiger Modus -> Fallback relevanz")
+    check(priorisiere_fuer_anzeige(bew_chrono, ANZEIGE, station_reihenfolge="chronologisch")["reihenfolge"]
+          == "chronologisch", "Bequemlichkeits-Pfad reicht Modus durch")
 
     print("--- Edge-Cases ---")
     leer = priorisiere({"stationen": []}, jd, abg)

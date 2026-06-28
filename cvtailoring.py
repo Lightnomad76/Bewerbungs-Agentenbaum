@@ -71,14 +71,21 @@ def _bewerten(text: str, relevant: set, muss: set, kann: set) -> dict:
 # ---------------------------------------------------------------------------
 
 
-def priorisiere(bewerber: dict, jd_result: dict, abgleich_result: dict) -> dict:
+def priorisiere(bewerber: dict, jd_result: dict, abgleich_result: dict,
+                station_reihenfolge: str = "relevanz") -> dict:
     """CV-Stationen + Bullets nach Anzeigen-Relevanz umsortieren/gewichten.
 
     Veraendert KEINE Inhalte: sortiert nur und partitioniert je Station in
     `bullets` (Score>0, relevant) und `weggelassen` (Score 0, Vorschlag wegzulassen).
-    Stationen werden nach Relevanz-Score absteigend sortiert; Tie-Break =
-    Original-Reihenfolge (= antichronologisch, wenn die Stammdaten neu->alt erfasst sind).
-    """
+
+    station_reihenfolge:
+      "relevanz"       (Default) Stationen nach Relevanz-Score absteigend; Tie-Break =
+                       Original-Reihenfolge. Aggressives Tailoring.
+      "chronologisch"  Stationen in Original-Reihenfolge (= antichronologisch, wenn die
+                       Stammdaten neu->alt erfasst sind) — bricht die CV-Konvention NICHT
+                       (kein Recruiter-Warnsignal), ATS-/menschenfreundlich.
+    In BEIDEN Modi werden die Bullets *innerhalb* einer Station relevanz-sortiert
+    (das ist immer unbedenklich). `score` wird immer berechnet (Sortierung unabhaengig)."""
     relevant = set(abgleich_result.get("vorhanden", []) or [])
     muss = set(jd_result.get("anforderungen", {}).get("muss", []) or [])
     kann = set(jd_result.get("anforderungen", {}).get("kann", []) or [])
@@ -134,14 +141,20 @@ def priorisiere(bewerber: dict, jd_result: dict, abgleich_result: dict) -> dict:
             "skills_relevant": skills_relevant,
         })
 
-    # Stationen: Relevanz-Score desc, Tie-Break = Original-Reihenfolge
-    stationen_out.sort(key=lambda s: (-s["score"], s["original_index"]))
+    # Stationen sortieren: relevanz = Score desc (Tie-Break Original); chronologisch =
+    # Original-Reihenfolge (= antichronologisch, wenn Stammdaten neu->alt erfasst sind).
+    if station_reihenfolge == "chronologisch":
+        stationen_out.sort(key=lambda s: s["original_index"])
+    else:
+        station_reihenfolge = "relevanz"
+        stationen_out.sort(key=lambda s: (-s["score"], s["original_index"]))
 
     return {
         "stationen": stationen_out,
         "weggelassen": weggelassen_gesamt,
         "relevant_keywords": sorted(relevant),
         "muss_fehlt": sorted(abgleich_result.get("muss_fehlt", []) or []),
+        "reihenfolge": station_reihenfolge,
         "stats": {
             "stationen": len(stationen_out),
             "bullets_gesamt": n_bullets,
@@ -152,11 +165,12 @@ def priorisiere(bewerber: dict, jd_result: dict, abgleich_result: dict) -> dict:
     }
 
 
-def priorisiere_fuer_anzeige(bewerber: dict, anzeige_text: str) -> dict:
+def priorisiere_fuer_anzeige(bewerber: dict, anzeige_text: str,
+                             station_reihenfolge: str = "relevanz") -> dict:
     """Bequemlichkeit: parse(anzeige) + abgleich(gegen Bewerber-CV) + priorisiere()."""
     jd = parse(anzeige_text)
     abg = abgleich(jd, parse(_bewerber_als_text(bewerber)))
-    return priorisiere(bewerber, jd, abg)
+    return priorisiere(bewerber, jd, abg, station_reihenfolge=station_reihenfolge)
 
 
 # ---------------------------------------------------------------------------
@@ -169,6 +183,8 @@ def report(quelle: str, result: dict) -> str:
     out = []
     out.append("=== CVTailoringAgent — Stationen/Bullets nach Anzeigen-Relevanz ===")
     out.append("Anzeige: " + quelle)
+    out.append("Stations-Reihenfolge: " + result.get("reihenfolge", "relevanz")
+               + ("  (Bullets stationsintern relevanz-sortiert)"))
     out.append("Relevante (im CV gedeckte) Anzeigen-Keywords ("
                + str(len(result["relevant_keywords"])) + "): "
                + (", ".join(result["relevant_keywords"]) or "—"))
@@ -201,7 +217,7 @@ def main(argv):
     args = [a for a in argv[1:] if not a.startswith("--")]
     flags = {a for a in argv[1:] if a.startswith("--")}
     if len(args) < 2:
-        print("Aufruf: python cvtailoring.py <anzeige-datei> <bewerber.json> [--json]",
+        print("Aufruf: python cvtailoring.py <anzeige-datei> <bewerber.json> [--json] [--chrono]",
               file=sys.stderr)
         return 2
     try:
@@ -216,7 +232,8 @@ def main(argv):
         print("FEHLER: bewerber.json ungültig: " + str(e), file=sys.stderr)
         return 2
 
-    result = priorisiere_fuer_anzeige(bewerber, anzeige)
+    reihenfolge = "chronologisch" if "--chrono" in flags else "relevanz"
+    result = priorisiere_fuer_anzeige(bewerber, anzeige, station_reihenfolge=reihenfolge)
     if "--json" in flags:
         print(json.dumps({"anzeige": args[0], **result}, ensure_ascii=False, indent=2))
     else:
