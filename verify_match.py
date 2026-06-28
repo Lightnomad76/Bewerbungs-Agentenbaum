@@ -104,6 +104,41 @@ def test_sortierung() -> None:
     check(out[-1]["match"]["ko"] is True, "ko-Treffer landet hinten")
 
 
+PM_GEO = match.MatchProfil(
+    skills_muss=[], skills_kann=["Industriemechaniker"], ausschluss_keywords=[],
+    gehalt_min_eur_jahr=None, standort="Obertshausen, Hessen, DE",
+    umkreis_km=50, max_distanz_km=30,
+)
+
+
+def test_distanz() -> None:
+    print("[6] Distanz-Scoring + harte Obergrenze (v13)")
+    nah = match.bewerte_einen(_job(title="Industriemechaniker", location="Frankfurt am Main, HE, DE"), PM_GEO)
+    fern = match.bewerte_einen(_job(title="Industriemechaniker", location="Mannheim, BW, DE"), PM_GEO)
+    unbk = match.bewerte_einen(_job(title="Industriemechaniker", location="Kleinkleckersdorf, XY, DE"), PM_GEO)
+    check(nah["match"]["distanz_km"] is not None and nah["match"]["distanz_km"] < 20,
+          f"Frankfurt ~13km erkannt (ist {nah['match']['distanz_km']})")
+    check(nah["match"]["distanz_score"] == match.DIST_BONUS_NAH, "naher Treffer -> Nah-Bonus")
+    check(nah["match"]["zu_weit"] is False, "Frankfurt <=30km -> nicht zu_weit")
+    check(fern["match"]["distanz_km"] > 60, f"Mannheim >60km (ist {fern['match']['distanz_km']})")
+    check(fern["match"]["zu_weit"] is True, "Mannheim >30km -> zu_weit")
+    check(fern["match"]["distanz_score"] < 0, "ferner Treffer -> Distanz-Malus")
+    check(nah["match"]["distanz_score"] > fern["match"]["distanz_score"], "nah > fern im Distanz-Score")
+    check(unbk["match"]["distanz_km"] is None, "unbekannter Ort -> distanz_km None")
+    check(unbk["match"]["zu_weit"] is False, "unbekannter Ort wird NICHT zu_weit-geflaggt")
+    jobs = [
+        _job(title="nah", location="Offenbach am Main, HE, DE"),
+        _job(title="fern", location="Mannheim, BW, DE"),
+        _job(title="unbekannt", location="Nirgendwo, XY, DE"),
+    ]
+    out = match.bewerte_treffer(jobs, PM_GEO)
+    titel = [t["title"] for t in out]
+    check("fern" not in titel, "ferner Treffer (Mannheim) hart ausgeblendet")
+    check("nah" in titel, "naher Treffer (Offenbach) bleibt")
+    check("unbekannt" in titel, "unbekannter Ort bleibt (kein stiller Drop)")
+    check(match.zaehle_ausgeblendet(jobs, PM_GEO) == 1, "zaehle_ausgeblendet == 1")
+
+
 def main() -> int:
     print("=== verify_match.py (offline MatchAgent-Selbsttest) ===")
     test_muss_ko()
@@ -112,6 +147,7 @@ def main() -> int:
     test_ausschluss_nur_titel()
     test_gehalt()
     test_sortierung()
+    test_distanz()
     print("---")
     if FEHLER:
         print(f"ROT: {len(FEHLER)} Fehler")

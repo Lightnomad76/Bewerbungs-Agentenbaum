@@ -18,6 +18,7 @@ Deterministisch und nachvollziehbar: jeder Treffer trägt sein `match`-Detail.
 """
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass
 
@@ -27,6 +28,42 @@ GEWICHT_KANN = 3
 MALUS_AUSSCHLUSS = 8
 MALUS_KO = 100          # hält ko-Treffer klar unter den vollständigen
 MALUS_GEHALT = 5
+
+# Distanz-Scoring (v13, deterministisch/offline — keine API/Geocoding-Calls).
+# Bänder relativ zum Profil-Umkreis: nah = mehr Bonus, weit = Malus. Ein
+# keyword-starker Treffer weit weg soll NICHT über einem nahen pendelbaren stehen.
+DIST_BONUS_NAH = 10     # <= 0.5 * Umkreis (z.B. <=25 km)
+DIST_BONUS_RAND = 4     # <= Umkreis        (z.B. <=50 km)
+DIST_MALUS_FERN = -6    # <= 1.6 * Umkreis  (z.B. <=80 km)
+DIST_MALUS_SEHR = -12   # <= 2.4 * Umkreis  (z.B. <=120 km)
+DIST_MALUS_EXTREM = -18 # darüber
+
+# Statische Ort->(lat, lon)-Tabelle (Rhein-Main + Umland, erweiterbar). Keys sind
+# bereits normalisiert (lowercase). Unbekannte Orte -> Distanz neutral (0), nicht erraten.
+GEO = {
+    "obertshausen": (50.073, 8.856), "offenbach am main": (50.106, 8.766),
+    "offenbach": (50.106, 8.766), "frankfurt am main": (50.110, 8.682),
+    "frankfurt": (50.110, 8.682), "hanau": (50.133, 8.916),
+    "rodgau": (50.020, 8.885), "dietzenbach": (50.009, 8.777),
+    "mühlheim am main": (50.116, 8.834), "mühlheim": (50.116, 8.834),
+    "mainhausen": (50.005, 8.997), "seligenstadt": (50.045, 8.974),
+    "darmstadt": (49.872, 8.651), "aschaffenburg": (49.974, 9.149),
+    "alzenau": (50.089, 9.062), "groß-gerau": (49.922, 8.480),
+    "rüsselsheim": (49.992, 8.413), "mainz": (49.992, 8.247),
+    "wiesbaden": (50.082, 8.240), "bad schwalbach": (50.140, 8.069),
+    "gießen": (50.587, 8.678), "lich": (50.524, 8.819),
+    "wetzlar": (50.554, 8.498), "weilburg": (50.486, 8.263),
+    "marburg an der lahn": (50.801, 8.766), "marburg": (50.801, 8.766),
+    "fulda": (50.555, 9.677), "mannheim": (49.488, 8.466),
+    "ludwigshafen am rhein": (49.477, 8.445), "ludwigshafen": (49.477, 8.445),
+    "heidelberg": (49.398, 8.672), "viernheim": (49.540, 8.578),
+    "worms": (49.632, 8.355), "frankenthal": (49.535, 8.354),
+    "ingelheim am rhein": (49.972, 8.058), "ingelheim": (49.972, 8.058),
+    "laudenbach": (49.652, 8.643), "freudenberg": (49.752, 9.330),
+    "kreuzwertheim": (49.762, 9.435), "wertheim": (49.759, 9.514),
+    "bad homburg": (50.227, 8.618), "friedberg": (50.339, 8.756),
+    "langen": (49.992, 8.659), "dreieich": (50.022, 8.700),
+}
 
 # Felder, deren Text für Skill-Scoring durchsucht wird (breit = gewollt)
 TEXT_FELDER = ("title", "company", "location", "description", "such_titel")
@@ -42,6 +79,9 @@ class MatchProfil:
     skills_kann: list[str]
     ausschluss_keywords: list[str]
     gehalt_min_eur_jahr: int | None
+    standort: str | None = None   # Heimatort -> Distanz-Scoring (None = aus)
+    umkreis_km: int = 50          # Profil-Radius -> Distanz-Bänder
+    max_distanz_km: int | None = None  # harte Obergrenze: weiter entfernte Treffer NICHT anzeigen
 
 
 def _norm(s: object) -> str:
@@ -66,6 +106,43 @@ def _feld_text(t: dict, felder: tuple[str, ...]) -> str:
 def _treffer(text: str, skills: list[str]) -> list[str]:
     """Skills, deren normalisierte Form als Substring im Text vorkommt."""
     return [s for s in skills if s and _norm(s) in text]
+
+
+def _coords(location: object) -> tuple[float, float] | None:
+    """Ort-String -> (lat, lon) aus der GEO-Tabelle. Wählt den längsten passenden
+    Stadtnamen (robust gegen Suffixe wie 'Verkehrsflughafen ...' / ', HE, DE')."""
+    if not location:
+        return None
+    loc = _norm(location)
+    best_name, best_xy = "", None
+    for stadt, xy in GEO.items():
+        if stadt in loc and len(stadt) > len(best_name):
+            best_name, best_xy = stadt, xy
+    return best_xy
+
+
+def _haversine(a: tuple[float, float], b: tuple[float, float]) -> float:
+    """Großkreis-Distanz in km zwischen zwei (lat, lon)-Punkten."""
+    (la1, lo1), (la2, lo2) = a, b
+    r = 6371.0
+    p1, p2 = math.radians(la1), math.radians(la2)
+    dphi, dl = math.radians(la2 - la1), math.radians(lo2 - lo1)
+    h = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(h))
+
+
+def _distanz_punkte(km: float, umkreis: int) -> int:
+    """Distanz -> Score-Beitrag (Bänder relativ zum Profil-Umkreis)."""
+    u = umkreis or 50
+    if km <= 0.5 * u:
+        return DIST_BONUS_NAH
+    if km <= u:
+        return DIST_BONUS_RAND
+    if km <= 1.6 * u:
+        return DIST_MALUS_FERN
+    if km <= 2.4 * u:
+        return DIST_MALUS_SEHR
+    return DIST_MALUS_EXTREM
 
 
 def bewerte_einen(t: dict, pm: MatchProfil) -> dict:
@@ -100,6 +177,19 @@ def bewerte_einen(t: dict, pm: MatchProfil) -> dict:
             except (TypeError, ValueError):
                 pass  # unparsebarer Betrag -> neutral
 
+    # Distanz-Scoring (nur wenn Heimatort gesetzt UND beide Orte auflösbar; sonst neutral)
+    distanz_km = None
+    distanz_score = 0
+    zu_weit = False
+    heim = _coords(pm.standort)
+    job_xy = _coords(t.get("location"))
+    if heim and job_xy:
+        distanz_km = round(_haversine(heim, job_xy))
+        distanz_score = _distanz_punkte(distanz_km, pm.umkreis_km)
+        score += distanz_score
+        if pm.max_distanz_km is not None and distanz_km > pm.max_distanz_km:
+            zu_weit = True  # harte Obergrenze -> wird in bewerte_treffer ausgeblendet
+
     out = dict(t)
     out["match"] = {
         "score": score,
@@ -109,13 +199,27 @@ def bewerte_einen(t: dict, pm: MatchProfil) -> dict:
         "kann_treffer": kann_treffer,
         "ausschluss_treffer": aus_treffer,
         "gehalt_unter_min": gehalt_unter_min,
+        "distanz_km": distanz_km,
+        "distanz_score": distanz_score,
+        "zu_weit": zu_weit,
     }
     return out
 
 
 def bewerte_treffer(treffer: list[dict], pm: MatchProfil) -> list[dict]:
     """Bewertet alle Treffer und sortiert: vollständige (ko=False) zuerst,
-    innerhalb nach Score absteigend."""
+    innerhalb nach Score absteigend. Bei gesetztem max_distanz_km werden Treffer
+    OBERHALB der Obergrenze HART ausgeblendet (User-Wunsch: gar nicht anzeigen) —
+    Treffer mit unauflösbarem Ort bleiben (kein stiller Datenverlust)."""
     bewertet = [bewerte_einen(t, pm) for t in treffer]
+    if pm.max_distanz_km is not None:
+        bewertet = [t for t in bewertet if not t["match"]["zu_weit"]]
     bewertet.sort(key=lambda t: (t["match"]["ko"], -t["match"]["score"]))
     return bewertet
+
+
+def zaehle_ausgeblendet(treffer: list[dict], pm: MatchProfil) -> int:
+    """Wie viele Treffer würde der max_distanz_km-Filter ausblenden (für Report)."""
+    if pm.max_distanz_km is None:
+        return 0
+    return sum(1 for t in treffer if bewerte_einen(t, pm)["match"]["zu_weit"])

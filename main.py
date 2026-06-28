@@ -20,7 +20,7 @@ import pandas as pd
 import yaml
 from jobspy import scrape_jobs
 
-from match import MatchProfil, bewerte_treffer
+from match import MatchProfil, bewerte_treffer, zaehle_ausgeblendet
 
 BASE = Path(__file__).resolve().parent
 PROFIL_PFAD = BASE / "profile" / "jobprofil.yaml"
@@ -90,6 +90,9 @@ def lade_profil(pfad: Path = PROFIL_PFAD) -> Profil:
         skills_kann=_liste("skills_kann"),
         ausschluss_keywords=_liste("ausschluss_keywords"),
         gehalt_min_eur_jahr=matching_roh.get("gehalt_min_eur_jahr"),
+        standort=person.get("standort", ""),
+        umkreis_km=int(person.get("umkreis_km", 50)),
+        max_distanz_km=matching_roh.get("max_distanz_km"),
     )
 
     return Profil(
@@ -254,9 +257,18 @@ def schreibe_report(df: pd.DataFrame, profil: Profil) -> int:
     else:
         treffer = []
 
-    # MatchAgent: offline scoren + priorisieren (Etappe 2)
+    # MatchAgent: offline scoren + priorisieren (Etappe 2) + Distanz-Filter (v13)
+    ausgeblendet = 0
+    max_dist = None
     if treffer and profil.matching is not None:
+        max_dist = profil.matching.max_distanz_km
+        if max_dist is not None:
+            ausgeblendet = zaehle_ausgeblendet(treffer, profil.matching)
         treffer = bewerte_treffer(treffer, profil.matching)
+    n = len(treffer)
+    if ausgeblendet:
+        print(f"  [Distanz] {ausgeblendet} Treffer > {max_dist} km ausgeblendet "
+              f"(harte Obergrenze ab Standort)")
 
     payload = {
         "meta": {
@@ -266,6 +278,8 @@ def schreibe_report(df: pd.DataFrame, profil: Profil) -> int:
             "quellen": profil.sites,
             "such_titel": profil.jobtitel,
             "anzahl": n,
+            "max_distanz_km": max_dist,
+            "ausgeblendet_zu_weit": ausgeblendet,
             "version": "v2",
         },
         "treffer": treffer,
