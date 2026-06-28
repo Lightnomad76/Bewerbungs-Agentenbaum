@@ -31,10 +31,22 @@
   kein Fixture-Bruch trotz Katalog-Erweiterung).
 - Real-Beleg an echten Anzeigen, read-only.
 
+## Nachgezogen (gekettet, gleiche Session)
+- **Getailorte CV-PDFs (Deliverable, lokal):** klassisch + ATS-clean für die Güteprüfer-Stelle
+  in TEMP gebaut, als PDF auf Desktop exportiert (Word/win32com). ATS-Lint 0 FEHLER. Echte
+  `profile/`-CVs mtime-identisch = unberührt (Folgeschäden-Check bestanden).
+- **„Deutsch"-False-Gap BEHOBEN:** `coverletter._bewerber_als_text` serialisiert jetzt `sprachen`
+  (committed); `build_bewerber` liefert reale CV-Sprachen (Deutsch C1 / Polnisch / Englisch, lokal/PII).
+  Effekt Samson-Test: Abdeckung 42%→50%, „Deutsch" korrekt gedeckt. verify_all 10/10.
+
+## Bewusst NICHT gemacht (Folgeschäden-Ausschluss, User-Vorgabe)
+- **Ansprechpartner „HR BP: <Name>" (ohne Herr/Frau):** würde in `coverletter._anrede` zu falscher
+  Anrede führen („Sehr geehrte <Vorname Nachname>") → Folgeschaden. Aktuelles Verhalten
+  (None + neutraler Fallback) ist das sichere; nur mit Geschlechts-Erkennung gefahrlos lösbar.
+
 ## Offene Punkte / nächste kleine Posten
-- **„Deutsch"-False-Gap:** `_bewerber_als_text` (lokaler PII-Generator) nimmt die Sprachen-Zeile
-  nicht mit → C1-Deutsch wird fälschlich als CV-Lücke geflaggt. Klein, deterministisch.
-- **Ansprechpartner-Erkennung:** „HR BP: <Name>" ohne Herr/Frau wird nicht erkannt (interne Anzeigen).
+- **Auto-Writer-Kosmetik:** deterministischer coverletter listet „Deutsch" als „Schwerpunkt"
+  (Sprache ≠ Schwerpunkt) — Sprachen-Keywords in der Schwerpunkt-Zeile ausklammern.
 - **Inhaltliche CV-Ergänzung (User-Aktion):** Bullet „Chargen nach DIN EN 10204" bei Samson aufnehmen
   (belegt, deckt eine MUSS-Anforderung; read-only Tool ergänzt bewusst keine Inhalte).
 - Altlasten unverändert: echter externer ATS-Parser-Durchlauf (§3.6a, User-Aktion);

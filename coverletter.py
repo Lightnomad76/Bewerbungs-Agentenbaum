@@ -70,6 +70,7 @@ def _bewerber_als_text(bewerber: dict) -> str:
         teile.extend(st.get("taetigkeiten", []) or [])
         teile.append(", ".join(st.get("skills", []) or []))
     teile.extend(bewerber.get("skills", []) or [])
+    teile.extend(bewerber.get("sprachen", []) or [])
     return "\n".join(t for t in teile if t)
 
 
