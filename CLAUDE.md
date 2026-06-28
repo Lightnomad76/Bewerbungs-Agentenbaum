@@ -1,9 +1,9 @@
 # CLAUDE.md — Jobsuche-Agent (Bewerbungshilfe)
 
-**Stack:** Python (primär `py -3.14`, Fallback `py -3.11` falls JobSpy-cp314-Wheel fehlt) · `python-jobspy` (PyPI) · `py -m pip` global, kein venv
+**Stack:** Python 3.11 in **projekt-eigenem venv** `.venv` (PyYAML + `python-jobspy` darin isoliert) · **AUSNAHME zur globalen „kein venv"-Regel** (Etappe v6, 2026-06-28): JobSpys regex-Constraint `<2025.0.0` ist **disjunkt** zu crewais `~=2026.1.15` im global-py311-AI-Stack → ein gemeinsamer Topf ist mathematisch unmöglich. Darum JobSpy isoliert ins venv, global bleibt crewai/LangChain-autoritativ. Detail: `state/etappe_v6_state.md`.
 **BASE_DIR:** C:\Users\adam2\.Projekte\Bewerbungs-Agentenbaum
-**Start-Befehl:** `py main.py` (existiert noch nicht — entsteht in Etappe 1)
-**Verify-Befehl:** `py verify_*.py` (Mechanik-Selbsttest; ab Etappe 1, exit 0 = grün)
+**Start-Befehl:** `.\.venv\Scripts\python.exe main.py` (venv-Python — NICHT `py -3.11`, global hat kein jobspy mehr)
+**Verify-Befehl:** `.\.venv\Scripts\python.exe verify_*.py` (Mechanik-Selbsttest, exit 0 = grün). Ausnahme: `profile/`-Generatoren (gen_cv/gen_bewerbung, kein jobspy) laufen weiter über global `py -3.11`.
 **Versionsschema:** v_N; Git = datierte Kette + Rollback; ZIP-Snapshot nur bei `_stable` via `make_backup.py`; `_stable`-ZIPs + Git-History nie löschen
 **Projekt-Subagent-Overrides:**
 - Code-Etappen (Engine/Scoring) = **Marek** (Default).
