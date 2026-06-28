@@ -305,6 +305,16 @@ button:hover { background: var(--color-surface); border-color: var(--color-ink-f
 .badge--gehalt    { background: var(--color-neg-soft); color: var(--color-neg); }
 .badge--gehalt::before    { content: "\20AC"; }   /* euro */
 .badge--info      { background: var(--color-info-soft); color: var(--color-info); }
+.badge--qual      { background: var(--color-warn-soft); color: var(--color-warn); border-color: var(--color-warn-line); }
+.badge--qual::before      { content: "\1F393"; }  /* graduation cap: Studium gefordert */
+.badge--fern      { background: var(--color-neg-soft); color: var(--color-neg); }
+.badge--fern::before      { content: "\1F4CD"; }  /* pin: ausserhalb Umkreis */
+
+/* Distanz-Chip in der Sub-Zeile (Ort -> Pendel-Entfernung) */
+.sub-dist { font-weight: 600; }
+.sub-dist.dist-nah  { color: var(--color-pos); }
+.sub-dist.dist-mit  { color: var(--color-ink); }
+.sub-dist.dist-fern { color: var(--color-neg); }
 
 /* kann_treffer-Chips (Hauptsignal, dezent) */
 .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }

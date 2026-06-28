@@ -256,6 +256,10 @@
     var sub = el("div", "card-sub");
     sub.appendChild(el("span", "sub-strong", String(ka(t.company))));
     sub.appendChild(el("span", null, "· " + String(ka(t.location))));
+    if (isNum(m.distanz_km)) {
+      var distCls = m.distanz_km <= 25 ? "dist-nah" : (m.distanz_km <= 50 ? "dist-mit" : "dist-fern");
+      sub.appendChild(el("span", "sub-dist " + distCls, "· " + m.distanz_km + " km"));
+    }
     sub.appendChild(el("span", null, "· " + String(ka(t.date_posted))));
     sub.appendChild(el("span", null, "· " + fmtSalary(t.min_amount, t.max_amount)));
     card.appendChild(sub);
@@ -284,6 +288,12 @@
     var fehlt = arr(m.muss_fehlt);
     if (fehlt.length) {
       badges.appendChild(el("span", "badge badge--info", "Fehlt: " + fehlt.join(", ")));
+    }
+    if (m.nicht_qualifiziert === true) {
+      badges.appendChild(el("span", "badge badge--qual", "Studium gefordert – Qualifikation fehlt"));
+    }
+    if (m.zu_weit === true) {
+      badges.appendChild(el("span", "badge badge--fern", "außerhalb Umkreis"));
     }
     if (badges.childNodes.length) card.appendChild(badges);
 
