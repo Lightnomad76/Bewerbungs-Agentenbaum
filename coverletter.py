@@ -110,7 +110,10 @@ def schreibe(bewerber: dict, jd_result: dict, abgleich_result: dict,
                 + " gesuchten Schwerpunkte in " + top + " unmittelbar mit.")
 
     # --- Eignung (belegen statt behaupten, an eine Station gebunden) -----------
-    koennen = ", ".join(vorhanden[:6]) if vorhanden else "die geforderten Aufgaben"
+    # Dedup gegen das Dreifach-Listing: die Schwerpunkte stehen im Einstieg; der Beleg
+    # referenziert sie kollektiv ("diese Schwerpunkte"), der Vertief-Absatz nennt nur
+    # NOCH NICHT genannte gedeckte Keywords (vorhanden[4:]).
+    bezeichner = "diese Schwerpunkte" if vorhanden else "die geforderten Aufgaben"
     if stationen:
         st = stationen[0]
         firma = (st.get("firma") or "").strip()
@@ -120,15 +123,19 @@ def schreibe(bewerber: dict, jd_result: dict, abgleich_result: dict,
             beleg += " bei " + firma
         if zeitraum:
             beleg += " (" + zeitraum + ")"
-        beleg += (" habe ich " + koennen + " im Arbeitsalltag angewandt und Aufträge "
+        beleg += (" habe ich " + bezeichner + " im Arbeitsalltag angewandt und Aufträge "
                   "termin- und qualitätsgerecht abgeschlossen.")
     else:
-        beleg = ("In meiner bisherigen Tätigkeit habe ich " + koennen + " im "
+        beleg = ("In meiner bisherigen Tätigkeit habe ich " + bezeichner + " im "
                  "Arbeitsalltag angewandt und Aufträge termin- und qualitätsgerecht "
                  "abgeschlossen.")
-    vertief = ("Konkret decke ich die in Ihrer Anzeige zentral genannten Punkte "
-               + koennen + " aus der täglichen Praxis ab; in neue Anlagen und "
-               "Verfahren arbeite ich mich zügig ein.")
+    rest = vorhanden[4:8]
+    if rest:
+        vertief = ("Darüber hinaus bringe ich " + ", ".join(rest) + " aus der täglichen "
+                   "Praxis mit; in neue Anlagen und Verfahren arbeite ich mich zügig ein.")
+    else:
+        vertief = ("Diese Punkte decke ich aus der täglichen Praxis ab; in neue Anlagen "
+                   "und Verfahren arbeite ich mich zügig ein.")
 
     # --- Bezug auf eine konkrete Anzeigen-Aufgabe -----------------------------
     if aufgaben:
