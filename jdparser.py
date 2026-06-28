@@ -79,7 +79,7 @@ KEYWORD_KATALOG = {
         ("Technisches Zeichnen", r"technische[nr]?\s+zeichn|zeichnung(?:en)?\s+les"),
     ],
     "mess_qs": [
-        ("Qualitätssicherung", r"qualitätssicherung|qualitäts-?kontrolle"),
+        ("Qualitätssicherung", r"qualitätssicherung|qualitäts-?kontrolle|qualitätsprüfung"),
         ("Messtechnik", r"messtechnik"),
         ("Messmittel", r"messmittel"),
         ("Messschieber", r"messschieber|schieblehre"),
@@ -93,6 +93,15 @@ KEYWORD_KATALOG = {
         ("Wareneingangsprüfung", r"wareneingangsprüfung|wareneingangskontrolle"),
         ("Endkontrolle", r"endkontrolle|endprüfung"),
         ("Prüfprotokoll", r"prüfprotokoll|prüfbericht"),
+        # Güteprüfung / Prüftechnik (v12: KEYWORD_KATALOG fuer den realen Gueteprueferei-CV)
+        ("Maßprüfung", r"maß-?prüfung|maß-?kontrolle|maßhaltigkeit"),
+        ("Festigkeitsprüfung", r"festigkeitsprüfung"),
+        ("Druckprüfung", r"druckprüfung|hydrostatische\s+prüfung"),
+        ("Leckageprüfung", r"leckageprüfung|leckage"),
+        ("Dichtheitsprüfung", r"dichtheitsprüfung|dichtheitstest"),
+        ("Sichtprüfung", r"sichtprüfung|sichtkontrolle"),
+        ("Toleranz", r"toleranz"),
+        ("Abnahmeprüfung", r"abnahmeprüfung|kundenabnahme|warenabnahme"),
     ],
     "steuerung_it": [
         ("SPS", r"\bsps\b|speicherprogrammierbar"),
