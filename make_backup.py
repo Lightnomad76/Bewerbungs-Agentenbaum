@@ -23,7 +23,9 @@ BASE = Path(__file__).resolve().parent
 TOP = BASE.name                          # "Bewerbungs-Agentenbaum" als Top-Ordner im ZIP
 BACKUP_DIR = BASE / ".backup_dateien"
 
-PRUNE_TOP = {".git", ".backup_dateien"}  # nur auf Top-Ebene aus dem Walk
+PRUNE_TOP = {".git", ".backup_dateien", ".venv"}  # nur auf Top-Ebene aus dem Walk
+# .venv raus (seit v6): reproduzierbar via `pip install python-jobspy pandas pyyaml`,
+# blaeht den Snapshot sonst um ~75 MB / ~4800 Dateien auf.
 EXCLUDE_DIR_NAMES = {"__pycache__"}      # an JEDER Stelle
 EXCLUDE_FILE_GLOBS = ("*.pyc", "*.zip")
 
