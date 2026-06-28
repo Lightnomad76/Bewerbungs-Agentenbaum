@@ -77,6 +77,16 @@ KEYWORD_KATALOG = {
         ("Hydraulik", r"hydraulik"),
         ("Pneumatik", r"pneumatik"),
         ("Technisches Zeichnen", r"technische[nr]?\s+zeichn|zeichnung(?:en)?\s+les"),
+        # Kern-Industriemechaniker-Vokabular (v13: realer Anzeigen-Test KTO/Rodgau
+        # deckte diese Luecken auf — Anzeige nennt sie unter "Erweiterte Kenntnisse").
+        ("Mechatronik", r"mechatronik"),
+        ("Antriebstechnik", r"antriebstechnik"),
+        ("Betriebstechnik", r"betriebstechnik"),
+        ("Feinwerktechnik", r"feinwerktechnik"),
+        ("Arbeitsvorbereitung", r"arbeitsvorbereitung"),
+        ("Maschineneinrichtung", r"maschineneinrichtung|anlageneinrichtung"),
+        ("Maschinenführung", r"maschinenführung|anlagenführung|maschinenbedienung|anlagenbedienung"),
+        ("Justieren", r"justier(?:en|ung)"),
     ],
     "mess_qs": [
         ("Qualitätssicherung", r"qualitätssicherung|qualitäts-?kontrolle|qualitätsprüfung"),
@@ -102,6 +112,12 @@ KEYWORD_KATALOG = {
         ("Sichtprüfung", r"sichtprüfung|sichtkontrolle"),
         ("Toleranz", r"toleranz"),
         ("Abnahmeprüfung", r"abnahmeprüfung|kundenabnahme|warenabnahme"),
+        # Güteprüfer-Fertigung-Vokabular (v13: realer interner Samson-Anzeigen-Test
+        # deckte diese QS-Kernbegriffe als Katalog-Luecke auf).
+        ("Abnahmeprüfzeugnis", r"abnahmeprüfzeugnis|prüfzeugnis|werkszeugnis|en\s?10204"),
+        ("Chargenverfolgung", r"chargen?\b|chargennummer|chargenrückverf"),
+        ("Nacharbeit", r"nacharbeit"),
+        ("Nichtkonformität", r"nicht-?konformität|nonkonformität|abweichungsbericht"),
     ],
     "steuerung_it": [
         ("SPS", r"\bsps\b|speicherprogrammierbar"),
@@ -186,8 +202,8 @@ ANREDE_NAME_RE = re.compile(
     r"wenden\s+sie\s+sich\s+an)[^\n]{0,40}?\b(Herr|Frau)\s+([A-ZÄÖÜ][\wäöüß.-]+(?:\s+[A-ZÄÖÜ][\wäöüß.-]+)?)",
     re.IGNORECASE)
 ABSCHLUSS_RE = re.compile(
-    r"abgeschlossene[ns]?\s+(?:(?:Berufs)?ausbildung|studium)\s+"
-    r"(?:als|zum|zur|im\s+bereich)\s+([^\n,.;]{3,60})",
+    r"(?:abgeschlossene[ns]?\s+)?(?:(?:Berufs)?ausbildung|studium)\s+"
+    r"(?:als|zum|zur|im\s+bereich|in\s+einem|in\s+einer)\s+([^\n,.;]{3,60})",
     re.IGNORECASE)
 # Nachlaufende Trigger-/Fuellwoerter aus der Abschluss-Bezeichnung schneiden
 # (z. B. "Industriemechaniker oder vergleichbar" / "... erforderlich").
