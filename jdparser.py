@@ -180,6 +180,12 @@ ABSCHLUSS_RE = re.compile(
     r"abgeschlossene[ns]?\s+(?:(?:Berufs)?ausbildung|studium)\s+"
     r"(?:als|zum|zur|im\s+bereich)\s+([^\n,.;]{3,60})",
     re.IGNORECASE)
+# Nachlaufende Trigger-/Fuellwoerter aus der Abschluss-Bezeichnung schneiden
+# (z. B. "Industriemechaniker oder vergleichbar" / "... erforderlich").
+ABSCHLUSS_CUT_RE = re.compile(
+    r"\s+(?:oder|bzw\.?|sowie|erforderlich|vorausgesetzt|wünschenswert|zwingend|"
+    r"notwendig|idealerweise|von\s+vorteil)\b.*$",
+    re.IGNORECASE)
 SCHICHT_RE = re.compile(_fold(r"schicht(?:arbeit|bereit|betrieb|system)|\d-schicht|drei-?schicht"), re.IGNORECASE)
 REISE_RE = re.compile(_fold(r"reisebereit|dienstreise|reisetätigkeit"), re.IGNORECASE)
 
@@ -291,7 +297,7 @@ def _meta(text: str) -> dict:
     m = ANREDE_NAME_RE.search(text)
     ansprechpartner = (m.group(1) + " " + m.group(2)).strip(" .,;:") if m else None
     a = ABSCHLUSS_RE.search(text)
-    abschluss = a.group(1).strip(" .,;:") if a else None
+    abschluss = ABSCHLUSS_CUT_RE.sub("", a.group(1)).strip(" .,;:") if a else None
     folded = _fold(text)
     return {
         "titel": titel,

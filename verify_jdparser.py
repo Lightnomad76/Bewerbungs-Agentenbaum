@@ -103,8 +103,8 @@ def main():
     m = res["meta"]
     ok(m["titel"] is not None and "(m/w/d)" in m["titel"], "Titel mit (m/w/d)", m["titel"])
     ok(m["ansprechpartner"] == "Frau Schmidt", "Ansprechpartner = Frau Schmidt", m["ansprechpartner"])
-    ok(m["abschluss"] is not None and "Industriemechaniker" in m["abschluss"],
-       "Abschluss erkannt", m["abschluss"])
+    ok(m["abschluss"] == "Industriemechaniker",
+       "Abschluss erkannt + nachlaufendes 'oder vergleichbar' abgeschnitten", m["abschluss"])
     ok(m["schicht"] is True, "Schichtbereitschaft-Flag", m["schicht"])
     ok(m["reise"] is False, "Reise-Flag korrekt False (nicht im Text)", m["reise"])
 
