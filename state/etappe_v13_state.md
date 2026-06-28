@@ -67,7 +67,10 @@
   (Sprache ≠ Schwerpunkt; User-Entscheid 2026-06-28: Deutsch SOLL Schwerpunkt bleiben → kein Fix nötig).
 - **GEO-Tabelle erweitern** bei neuen Orten (unauflösbare bleiben neutral/sichtbar).
 - **service.bund.de RSS-Quelle anbinden** (Wolf, eigene Session, Netz-Posten) — kleiner als Scraper.
-- **Distanz/Qualifikation als UI-Badges** (Felder distanz_km/nicht_qualifiziert liegen im JSON bereit).
+- ~~Distanz/Qualifikation als UI-Badges~~ **ERLEDIGT (commit fa085ad):** Distanz-Chip (nah/mittel/fern)
+  + „Studium gefordert – Qualifikation fehlt"- + „außerhalb Umkreis"-Badge in `ui/app.js`/`style.css`;
+  node --check grün, Datenpfad gesmoket. Alte Bridges ohne Felder bleiben kompatibel (Guards).
+- **UI-Filter-Toggle „nur qualifizierte"** (mirror hideAusschluss) als optionaler nächster Kleinposten.
 - **Inhaltliche CV-Ergänzung (User-Aktion):** Bullet „Chargen nach DIN EN 10204" bei Samson aufnehmen
   (belegt, deckt eine MUSS-Anforderung; read-only Tool ergänzt bewusst keine Inhalte).
 - Altlasten unverändert: echter externer ATS-Parser-Durchlauf (§3.6a, User-Aktion);
