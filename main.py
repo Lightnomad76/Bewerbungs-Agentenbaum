@@ -54,6 +54,7 @@ class Profil:
     results_wanted: int
     sites: list[str] = field(default_factory=list)
     matching: MatchProfil | None = None  # ab v2: Scoring-Kriterien
+    servicebund: dict | None = None  # v20: optionale service.bund-RSS-Quelle (öffentlicher Dienst)
 
 
 def lade_profil(pfad: Path = PROFIL_PFAD) -> Profil:
@@ -66,6 +67,7 @@ def lade_profil(pfad: Path = PROFIL_PFAD) -> Profil:
     person = data.get("person", {}) or {}
     suche = data.get("suche", {}) or {}
     quellen = data.get("quellen", {}) or {}
+    quellen_extra = data.get("quellen_extra", {}) or {}
 
     sites = [k for k, an in quellen.items() if an]
     unbekannt = [s for s in sites if s not in GUELTIGE_QUELLEN]
@@ -108,6 +110,7 @@ def lade_profil(pfad: Path = PROFIL_PFAD) -> Profil:
         results_wanted=int(suche.get("results_wanted", 15)),
         sites=sites,
         matching=matching,
+        servicebund=(quellen_extra.get("servicebund") or None),
     )
 
 
@@ -166,6 +169,43 @@ def suche_jobs(profil: Profil) -> pd.DataFrame:
                   "der Xing/Jobware-Umweg über Google greift erst wieder nach Upstream-Fix.",
                   file=sys.stderr)
     return roh
+
+
+# --------------------------------------------------------------------------- #
+# Zusatz-Quelle: service.bund.de (öffentlicher Dienst, RSS) — optional, gated
+# --------------------------------------------------------------------------- #
+def ergaenze_servicebund(df: pd.DataFrame, profil: Profil) -> pd.DataFrame:
+    """Hängt service.bund-Treffer (öffentlicher Dienst) an die JobSpy-Roh-Treffer an.
+    Aktiv NUR, wenn quellen_extra.servicebund.feed_url in der YAML steht — sonst No-Op
+    (Pipeline unverändert). Schema-kompatibel (KERN), läuft danach durch dieselbe
+    Dedup-/Scoring-/Report-Strecke. §3.6b: Detail-Fetch ist Crawl-delay-gedrosselt
+    (in quelle_servicebund über Vorfilter + max_detail gedeckelt)."""
+    cfg = profil.servicebund
+    if not cfg or not cfg.get("feed_url"):
+        return df
+    try:
+        import quelle_servicebund as qsb
+        max_dist = profil.matching.max_distanz_km if profil.matching else None
+        treffer = qsb.hole_stellen(
+            cfg["feed_url"],
+            standort=profil.standort,
+            max_distanz_km=max_dist,
+            titel_keywords=cfg.get("titel_keywords"),
+            max_alter_tage=cfg.get("max_alter_tage", qsb.DEFAULT_MAX_ALTER_TAGE),
+            detail_fetch=bool(cfg.get("detail_fetch", True)),
+            max_detail=int(cfg.get("max_detail", qsb.DEFAULT_MAX_DETAIL)),
+        )
+    except Exception as exc:  # Quelle down/Feed-URL kaputt -> Indeed-Lauf NICHT verlieren
+        print(f"  [WARN] service.bund-Quelle fehlgeschlagen: {type(exc).__name__}: {exc}",
+              file=sys.stderr)
+        return df
+    print(f"  [Quelle] servicebund: {len(treffer)} Treffer (öffentlicher Dienst)")
+    if not treffer:
+        return df
+    sb_df = pd.DataFrame(treffer)
+    if df is None or df.empty:
+        return sb_df
+    return pd.concat([df, sb_df], ignore_index=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -303,6 +343,7 @@ def main() -> int:
     print(f"[Profil] {profil.name} | {profil.standort} (±{profil.umkreis_km} km) | "
           f"{len(profil.jobtitel)} Titel | Quellen: {profil.sites}")
     df = suche_jobs(profil)
+    df = ergaenze_servicebund(df, profil)
     n = schreibe_report(df, profil)
     print(f"[Report] {n} Treffer (dedupliziert, gescort) -> {OUT_JSON.name}" + (f" + {OUT_CSV.name}" if n else ""))
     if n == 0:

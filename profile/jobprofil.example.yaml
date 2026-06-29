@@ -26,6 +26,30 @@ quellen:                                    # welche Börsen durchsuchen
   linkedin: false                           # rate-limited; bei Bedarf true + ggf. Proxy
   glassdoor: false
 
+# --- Optionale Zusatz-Quelle: service.bund.de (öffentlicher Dienst, TVöD/Kommunen/
+#     Bundeswehr/Stadtwerke — Indeed deckt das schlecht ab). RSS, gratis, login-frei,
+#     aggregiert interamt mit. Aktiv NUR wenn feed_url gesetzt ist (sonst ignoriert).
+# quellen_extra:
+#   servicebund:
+#     # Gefilterte Such-RSS-URL: auf service.bund.de eine Suche bauen (Beruf/Umkreis/Ort)
+#     # und unten "Suchergebnis als RSS-Feed" kopieren. Beispiel-Form (Werte anpassen):
+#     # https://www.service.bund.de/Content/DE/Stellen/Suche/Formular.html?templateQueryString=handwerker&ambit_distance=30&city_zipcode=Obertshausen&jobsrss=true
+#     feed_url: ""
+#     max_alter_tage: 90        # Karteileichen-Filter (Feed enthält alte Anzeigen); null = aus
+#     titel_keywords:           # nur diese Titel weiterverfolgen (leer = alle); senkt Crawl-delay-Kosten
+#       - "mechaniker"
+#       - "mechatronik"
+#       - "elektr"
+#       - "instandhalt"
+#       - "anlagenmechan"
+#       - "mess"
+#       - "regeltechnik"
+#       - "haustechnik"
+#       - "hausmeister"
+#       - "versorgungstechnik"
+#     detail_fetch: true        # Volltext (Aufgaben/Profil) je Treffer nachladen (für jdparser/tailoring)
+#     max_detail: 25            # Obergrenze Detail-Fetches; jeder zusätzliche kostet ~30s (robots Crawl-delay)
+
 # --- Ab Etappe 2 (Matching), jetzt nur sammeln, noch nicht aktiv ---
 profil_fuer_matching:
   skills_muss:                              # K.o.-Kriterien
