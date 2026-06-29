@@ -135,6 +135,19 @@ def test_distanz() -> None:
     kahl = match.bewerte_einen(_job(title="Industriemechaniker", location="Kahl am Main, BY, DE"), PM_GEO)
     check(kahl["match"]["distanz_km"] is not None and kahl["match"]["distanz_km"] < 20,
           f"Kahl am Main erkannt (ist {kahl['match']['distanz_km']})")
+    # v17: Belt-Erweiterung (Wikipedia-belegt) — nahe Pendel-Orte + Rand-Orte am 30km-Filter.
+    epp = match.bewerte_einen(_job(title="Industriemechaniker", location="64859 Eppertshausen, HE, DE"), PM_GEO)
+    check(epp["match"]["distanz_km"] is not None and epp["match"]["distanz_km"] < 16,
+          f"Eppertshausen ~14km erkannt (ist {epp['match']['distanz_km']})")
+    check(epp["match"]["zu_weit"] is False, "Eppertshausen <=30km -> nicht zu_weit")
+    hat = match.bewerte_einen(_job(title="Industriemechaniker", location="Hattersheim am Main, HE, DE"), PM_GEO)
+    check(hat["match"]["distanz_km"] is not None and 20 < hat["match"]["distanz_km"] <= 30,
+          f"Hattersheim ~26km erkannt + im 30km-Filter (ist {hat['match']['distanz_km']})")
+    check(hat["match"]["zu_weit"] is False, "Hattersheim <=30km -> nicht zu_weit")
+    # Münster-Kollisionsschutz: bare "Münster" (Westfalen) wurde bewusst NICHT eingetragen
+    # -> bleibt distanz-neutral statt faelschlich als ~16km erkannt.
+    muen = match.bewerte_einen(_job(title="Industriemechaniker", location="Münster, NRW, DE"), PM_GEO)
+    check(muen["match"]["distanz_km"] is None, "Münster/Westfalen NICHT faelschlich aufgeloest (keine Kollision)")
     jobs = [
         _job(title="nah", location="Offenbach am Main, HE, DE"),
         _job(title="fern", location="Mannheim, BW, DE"),

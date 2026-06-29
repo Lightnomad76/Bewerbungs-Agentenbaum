@@ -108,6 +108,21 @@ def main():
     ok(m["schicht"] is True, "Schichtbereitschaft-Flag", m["schicht"])
     ok(m["reise"] is False, "Reise-Flag korrekt False (nicht im Text)", m["reise"])
 
+    print("[5b] Titel-Heuristik gehaertet (Indeed-Marketing-Vorspann)")
+    # (all genders) statt (m/w/d) muss als Titel erkannt werden (breiter GENDER_RE).
+    ag = parse("Industriemechaniker (all genders)\nWir montieren Stellventile.")
+    ok(ag["meta"]["titel"] == "Industriemechaniker (all genders)",
+       "Geschlechtszusatz '(all genders)' -> Titel erkannt", ag["meta"]["titel"])
+    # Marketing-Satz als erste Zeile darf NICHT als Titel gekapert werden -> Fallback Beruf.
+    mk = parse("Unsere Mission: Energiespeicherung nach dem Vorbild der Natur ermoeglichen, "
+               "weltweit fuer alle.\nAbgeschlossene Ausbildung als Industriemechaniker.")
+    ok(mk["meta"]["titel"] == "Industriemechaniker",
+       "Marketing-Vorspann verworfen -> Fallback auf erkannten Beruf", mk["meta"]["titel"])
+    # Frage-/Label-Ueberschrift ist kein Titel.
+    fr = parse("Was sind SolidFlow-Batterien?\nAbgeschlossene Ausbildung als Mechatroniker.")
+    ok(fr["meta"]["titel"] == "Mechatroniker",
+       "Frage-Ueberschrift verworfen -> Fallback auf Beruf", fr["meta"]["titel"])
+
     print("[6] Negativ-/Robustheit")
     leer = parse("")
     ok(leer["stats"]["keywords_gesamt"] == 0, "leerer Text -> 0 Keywords")

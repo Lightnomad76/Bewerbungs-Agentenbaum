@@ -106,6 +106,14 @@ GEO = {
     "kahl am main": (50.068, 9.007), "erlensee": (50.164, 8.981),
     "bruchköbel": (50.183, 8.917), "nidderau": (50.227, 8.875),
     "bad vilbel": (50.178, 8.735),
+    # v17: Pendel-Belt-Erweiterung ~14–30 km Obertshausen (Koordinaten belegt via
+    # de.wikipedia.org, 2026-06-29; keine geratenen Werte — §3.10). Münster (Hessen)
+    # bewusst NICHT aufgenommen: bare "münster" kollidiert mit Münster/Westfalen
+    # (Substring-Match), "münster (hessen)" trifft Indeeds "Münster, Hessen" nicht.
+    "eppertshausen": (49.948, 8.850), "roßdorf": (49.858, 8.756),
+    "groß-umstadt": (49.868, 8.929), "langenselbold": (50.175, 9.044),
+    "kelsterbach": (50.069, 8.530), "raunheim": (50.010, 8.459),
+    "hattersheim": (50.070, 8.486),
 }
 
 # Felder, deren Text für Skill-Scoring durchsucht wird (breit = gewollt)

@@ -75,6 +75,16 @@ def main():
     ok(DATUM in brief, "Datum vorhanden")
     ok(brief.count("Max Mustermann") >= 2, "Name in Kopf + Signatur")
 
+    print("[1b] Autoritativer Titel ueberschreibt jdparser-Heuristik (Indeed-Fix)")
+    marketing = ("Unsere Mission: die Welt mit Energiespeichern veraendern, weltweit.\n"
+                 "Wir suchen Verstaerkung fuer unser Team in der Fertigung.")
+    bm = schreibe_fuer_anzeige(BEWERBER, marketing, datum=DATUM,
+                               titel="Industriemechaniker (all genders)")
+    betreff_line = [l for l in bm.splitlines() if l.startswith("Bewerbung als")][0]
+    ok(betreff_line == "Bewerbung als Industriemechaniker",
+       "Betreff = autoritativer Titel, Marketing-Vorspann verworfen + (all genders) bereinigt",
+       betreff_line)
+
     print("[2] AKZEPTANZ-GATE: critic 0 FEHLER")
     cres = c_pruefe(brief)
     ok(c_hat_fehler(cres) is False, "critic: keine FEHLER", cres["stats"])

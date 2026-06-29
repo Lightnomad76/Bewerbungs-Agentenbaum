@@ -203,6 +203,21 @@ BULLET_RE = re.compile(r"^\s*(?:[-•*▪–·●○]|\d+[.)])\s+(.*\S)\s*$")
 
 # Meta-Muster.
 MWD_RE = re.compile(r"\(\s*[mwd](?:\s*/\s*[mwd]){1,3}\s*\)|\(\s*m/w/d\s*\)", re.IGNORECASE)
+# Breiter Geschlechtszusatz fuer Titel-Erkennung + -bereinigung: deckt (m/w/d)-Varianten
+# UND ausgeschriebene Formen ab — (all genders), (alle Geschlechter), (divers), (gn), (a*).
+GENDER_RE = re.compile(
+    r"\([^)]*?(?:[mwfdx]\s*/\s*[mwfdx]|all\s+genders?|alle\s+geschlechter|divers|\bgn\b|\ba\*)"
+    r"[^)]*?\)",
+    re.IGNORECASE)
+
+
+def _ist_titel_zeile(s: str) -> bool:
+    """Heuristik: sieht die Zeile nach einem Stellentitel aus (kurz, kein Marketing-Satz)?
+    Verhindert, dass Indeed-Anzeigen mit Firmen-Prosa als erster Zeile den Titel kapern."""
+    if not s or len(s) > 70 or len(s.split()) > 9:
+        return False
+    # Saetze, Fragen und Label-/Abschnitts-Ueberschriften sind keine Stellentitel.
+    return not (s.endswith((".", "?", "!", ":")) or ". " in s)
 ANREDE_NAME_RE = re.compile(
     r"(?:ansprechpartner(?:in)?|kontakt|ihre\s+fragen|für\s+(?:rück)?fragen|"
     r"wenden\s+sie\s+sich\s+an)[^\n]{0,40}?\b(Herr|Frau)\s+([A-ZÄÖÜ][\wäöüß.-]+(?:\s+[A-ZÄÖÜ][\wäöüß.-]+)?)",
@@ -314,21 +329,26 @@ def _abschnitte(text: str) -> dict:
 
 def _meta(text: str) -> dict:
     lines = [ln for ln in _zeilen(text)]
-    # Titel: erste Zeile mit (m/w/d), sonst erste nicht-leere Zeile
+    a = ABSCHLUSS_RE.search(text)
+    abschluss = ABSCHLUSS_CUT_RE.sub("", a.group(1)).strip(" .,;:") if a else None
+    # Titel-Erkennung in Stufen (robust gegen Indeed-Beschreibungen mit Marketing-Vorspann):
+    #  1) erste Zeile mit Geschlechtszusatz (m/w/d | all genders | ...) = sicherster Titel
+    #  2) sonst erste „titel-artige" Zeile (kurz, kein Satz) — Marketing-Prosa faellt raus
+    #  3) Fallback: erkannter Abschluss/Beruf (z. B. „Industriemechaniker")
     titel = None
     for ln in lines:
-        if MWD_RE.search(ln):
+        if GENDER_RE.search(ln) and len(ln.strip()) <= 90:
             titel = ln.strip()
             break
     if titel is None:
         for ln in lines:
-            if ln.strip():
+            if _ist_titel_zeile(ln.strip()):
                 titel = ln.strip()
                 break
+    if titel is None:
+        titel = abschluss
     m = ANREDE_NAME_RE.search(text)
     ansprechpartner = (m.group(1) + " " + m.group(2)).strip(" .,;:") if m else None
-    a = ABSCHLUSS_RE.search(text)
-    abschluss = ABSCHLUSS_CUT_RE.sub("", a.group(1)).strip(" .,;:") if a else None
     folded = _fold(text)
     return {
         "titel": titel,

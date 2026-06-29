@@ -33,7 +33,7 @@ import sys
 import json
 from datetime import date
 
-from jdparser import parse, MWD_RE
+from jdparser import parse, MWD_RE, GENDER_RE
 from tailoring import abgleich
 
 
@@ -43,8 +43,8 @@ from tailoring import abgleich
 
 
 def _titel_clean(titel: str) -> str:
-    """(m/w/d) und Mehrfach-Leerzeichen aus dem Stellentitel entfernen."""
-    t = MWD_RE.sub("", titel or "")
+    """Geschlechtszusatz ((m/w/d), (all genders) …) und Mehrfach-Leerzeichen entfernen."""
+    t = GENDER_RE.sub("", MWD_RE.sub("", titel or ""))
     return re.sub(r"\s{2,}", " ", t).strip(" -–—\t") or "die ausgeschriebene Stelle"
 
 
@@ -80,8 +80,10 @@ def _bewerber_als_text(bewerber: dict) -> str:
 
 
 def schreibe(bewerber: dict, jd_result: dict, abgleich_result: dict,
-             ort: str = None, datum: str = None) -> str:
-    """Anschreiben deterministisch aus Bausteinen zusammensetzen. Gibt Plain-Text."""
+             ort: str = None, datum: str = None, titel: str = None) -> str:
+    """Anschreiben deterministisch aus Bausteinen zusammensetzen. Gibt Plain-Text.
+    titel: autoritativer Stellentitel (z. B. JobSpy job['title']) — ueberschreibt die
+    jdparser-Titel-Heuristik (die bei Indeed-Marketing-Vorspann danebengreifen kann)."""
     name = (bewerber.get("name") or "").strip()
     email = (bewerber.get("email") or "").strip()
     tel = (bewerber.get("telefon") or "").strip()
@@ -92,7 +94,7 @@ def schreibe(bewerber: dict, jd_result: dict, abgleich_result: dict,
     datum = datum or date.today().strftime("%d.%m.%Y")
 
     meta = jd_result.get("meta", {})
-    titel = _titel_clean(meta.get("titel"))
+    titel = _titel_clean(titel if titel is not None else meta.get("titel"))
     anrede = _anrede(meta.get("ansprechpartner"))
     vorhanden = abgleich_result.get("vorhanden", []) or []
     aufgaben = jd_result.get("abschnitte", {}).get("aufgaben", []) or []
@@ -155,11 +157,12 @@ def schreibe(bewerber: dict, jd_result: dict, abgleich_result: dict,
 
 
 def schreibe_fuer_anzeige(bewerber: dict, anzeige_text: str,
-                          ort: str = None, datum: str = None) -> str:
-    """Bequemlichkeit: parse(anzeige) + abgleich(gegen Bewerber-CV) + schreibe()."""
+                          ort: str = None, datum: str = None, titel: str = None) -> str:
+    """Bequemlichkeit: parse(anzeige) + abgleich(gegen Bewerber-CV) + schreibe().
+    titel: optionaler autoritativer Stellentitel (sonst jdparser-Heuristik)."""
     jd = parse(anzeige_text)
     abg = abgleich(jd, parse(_bewerber_als_text(bewerber)))
-    return schreibe(bewerber, jd, abg, ort=ort, datum=datum)
+    return schreibe(bewerber, jd, abg, ort=ort, datum=datum, titel=titel)
 
 
 # ---------------------------------------------------------------------------
