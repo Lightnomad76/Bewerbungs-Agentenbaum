@@ -71,8 +71,10 @@ Crawl-delay: 30
    Markup; die Hauswirtschaftsleitung-Seite zeigte strukturierten Text → extrahierbar).
 3. **Volumen messen**: wie viele near+technische Treffer liefert der gefilterte Feed real für Obertshausen?
    (entscheidet, ob der Aufwand lohnt — erst messen, dann voll bauen, §3.6b „messen statt raten").
-4. **Public-Sektor-Keyword-Katalog** ergänzen (Haustechnik/Bühnentechnik/Instandhalter/Gebäudetechnik),
-   damit jdparser/match diese Rollen erkennt.
+4. ~~Public-Sektor-Keyword-Katalog ergänzen~~ **ERLEDIGT (Prep v18, 2026-06-29)** — jdparser
+   KEYWORD_KATALOG +6: Anlagenmechaniker, Gebäudetechnik (Haustechnik/GLT), MSR-Technik
+   (= Samson-Regeltechnik-Brücke), Versorgungstechnik, Bühnentechnik, Hausmeister.
+   verify_jdparser +8 Checks grün. In der Wolf-Session NICHT erneut.
 
 ## Volumen-Messung (2026-06-29, gefilterter Feed vom User)
 Query: `templateQueryString=handwerker` + `ambit_distance=30` + `city_zipcode=Obertshausen` + `jobsrss=true`

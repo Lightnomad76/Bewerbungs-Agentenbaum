@@ -87,6 +87,13 @@ KEYWORD_KATALOG = {
         ("Maschineneinrichtung", r"maschineneinrichtung|anlageneinrichtung"),
         ("Maschinenführung", r"maschinenführung|anlagenführung|maschinenbedienung|anlagenbedienung"),
         ("Justieren", r"justier(?:en|ung)"),
+        # v18: öffentlicher-Dienst-Technik (service.bund-Quelle, Scope 2026-06-29) — Rollen,
+        # die im gemessenen ÖD-Feed real vorkamen + zum Profil passen (Stadtwerke/Kommune/Theater).
+        ("Anlagenmechaniker", r"anlagenmechaniker"),
+        ("Gebäudetechnik", r"gebäudetechnik|haustechnik|gebäudeleittechnik|\bglt\b"),
+        ("Versorgungstechnik", r"versorgungstechnik"),
+        ("Bühnentechnik", r"bühnentechnik|veranstaltungstechnik"),
+        ("Hausmeister", r"hausmeister|hauswart"),
     ],
     "mess_qs": [
         ("Qualitätssicherung", r"qualitätssicherung|qualitäts-?kontrolle|qualitätsprüfung"),
@@ -136,6 +143,9 @@ KEYWORD_KATALOG = {
         ("AutoCAD", r"autocad"),
         ("ERP", r"\berp\b"),
         ("MS Office", r"ms[- ]office|microsoft\s+office|\bexcel\b"),
+        # v18: MSR/Regeltechnik = Samson-Schwerpunkt (Stellventile/Regeltechnik) UND häufig
+        # in ÖD-Technik-Stellen (Stadt/Stadtwerke) — matcht Anzeige UND CV (Tailoring-Boost).
+        ("MSR-Technik", r"msr-?technik|mess-?\s*und\s*regeltechnik|regel(?:ungs)?technik"),
     ],
     "normen": [
         ("DIN", r"\bdin\s?\d|\bdin\s?en"),

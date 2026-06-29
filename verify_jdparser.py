@@ -123,6 +123,21 @@ def main():
     ok(fr["meta"]["titel"] == "Mechatroniker",
        "Frage-Ueberschrift verworfen -> Fallback auf Beruf", fr["meta"]["titel"])
 
+    print("[5c] OeD-Technik-Katalog (v18, service.bund-Prep)")
+    oed = keywords_flach(parse(
+        "Wir suchen eine/n Anlagenmechaniker fuer die Haustechnik / Gebaeudeleittechnik. "
+        "Aufgaben in der Mess- und Regeltechnik (MSR) sowie Versorgungstechnik. "
+        "Auch Buehnentechnik und Hausmeister-Taetigkeiten gehoeren dazu."))
+    for kw in ["Anlagenmechaniker", "Gebäudetechnik", "MSR-Technik",
+               "Versorgungstechnik", "Bühnentechnik", "Hausmeister"]:
+        ok(kw in oed, f"OeD-Keyword erkannt: {kw}", oed)
+    # MSR matcht auch das CV-Vokabular (Regeltechnik = Samson) -> Tailoring-Boost.
+    ok("MSR-Technik" in keywords_flach(parse("Erfahrung in Regeltechnik an Stellventilen.")),
+       "MSR-Technik matcht 'Regeltechnik' (CV-Bruecke)")
+    # Kein False-Positive: 'Regel' allein (ohne -technik) triggert nicht.
+    ok("MSR-Technik" not in keywords_flach(parse("Nach den Regeln der Technik arbeiten.")),
+       "'Regeln' ohne -technik triggert MSR nicht (Wortgrenze)")
+
     print("[6] Negativ-/Robustheit")
     leer = parse("")
     ok(leer["stats"]["keywords_gesamt"] == 0, "leerer Text -> 0 Keywords")
