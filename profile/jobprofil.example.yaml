@@ -31,12 +31,14 @@ quellen:                                    # welche Börsen durchsuchen
 #     aggregiert interamt mit. Aktiv NUR wenn feed_url gesetzt ist (sonst ignoriert).
 # quellen_extra:
 #   servicebund:
-#     # Gefilterte Such-RSS-URL: auf service.bund.de eine Suche bauen (Beruf/Umkreis/Ort)
-#     # und unten "Suchergebnis als RSS-Feed" kopieren. Beispiel-Form (Werte anpassen):
-#     # https://www.service.bund.de/Content/DE/Stellen/Suche/Formular.html?templateQueryString=handwerker&ambit_distance=30&city_zipcode=Obertshausen&jobsrss=true
-#     feed_url: ""
+#     # Gefilterte Such-RSS-URL: auf service.bund.de eine Suche bauen und unten
+#     # "Suchergebnis als RSS-Feed" kopieren. TIPP (gemessen 2026-06-29): templateQueryString
+#     # LEER lassen + resultsPerPage=100 -> service.bund liefert die ganze regionale ÖD-Liste,
+#     # die titel_keywords unten sieben sie client-seitig (bessere Abdeckung als ein enger
+#     # Suchbegriff wie "handwerk", der real nur ~1 Technik-Stelle traf).
+#     feed_url: "https://service.bund.de/Content/DE/Stellen/Suche/Formular.html?nn=4642046&ambit_distance=30&type=0&cl2Addresses_Adresse_State=hessen&resultsPerPage=100&sortOrder=dateOfIssue_dt+desc&city_zipcode=Obertshausen+%28Hessen%29&jobsrss=true"
 #     max_alter_tage: 90        # Karteileichen-Filter (Feed enthält alte Anzeigen); null = aus
-#     titel_keywords:           # nur diese Titel weiterverfolgen (leer = alle); senkt Crawl-delay-Kosten
+#     titel_keywords:           # nur diese Titel weiterverfolgen (leer = alle); sieben den ÖD-Wust
 #       - "mechaniker"
 #       - "mechatronik"
 #       - "elektr"
@@ -45,10 +47,15 @@ quellen:                                    # welche Börsen durchsuchen
 #       - "mess"
 #       - "regeltechnik"
 #       - "haustechnik"
-#       - "hausmeister"
 #       - "versorgungstechnik"
-#     detail_fetch: true        # Volltext (Aufgaben/Profil) je Treffer nachladen (für jdparser/tailoring)
-#     max_detail: 25            # Obergrenze Detail-Fetches; jeder zusätzliche kostet ~30s (robots Crawl-delay)
+#       - "schlosser"
+#       - "monteur"
+#       - "metall"
+#       - "schwei"
+#     detail_fetch: false       # Default AUS: Volltext-Nachladen kostet ~30s/Stelle (robots Crawl-delay)
+#                               # und kann lange blockieren. true nur, wenn du Aufgaben/Profil-Volltext
+#                               # für jdparser/tailoring brauchst (dann via max_detail deckeln).
+#     max_detail: 25            # Obergrenze Detail-Fetches (greift nur bei detail_fetch: true)
 
 # --- Ab Etappe 2 (Matching), jetzt nur sammeln, noch nicht aktiv ---
 profil_fuer_matching:

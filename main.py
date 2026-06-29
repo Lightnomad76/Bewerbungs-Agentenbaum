@@ -192,7 +192,7 @@ def ergaenze_servicebund(df: pd.DataFrame, profil: Profil) -> pd.DataFrame:
             max_distanz_km=max_dist,
             titel_keywords=cfg.get("titel_keywords"),
             max_alter_tage=cfg.get("max_alter_tage", qsb.DEFAULT_MAX_ALTER_TAGE),
-            detail_fetch=bool(cfg.get("detail_fetch", True)),
+            detail_fetch=bool(cfg.get("detail_fetch", False)),  # Default AUS: Detail-Fetch = Crawl-delay-Laufzeit
             max_detail=int(cfg.get("max_detail", qsb.DEFAULT_MAX_DETAIL)),
         )
     except Exception as exc:  # Quelle down/Feed-URL kaputt -> Indeed-Lauf NICHT verlieren

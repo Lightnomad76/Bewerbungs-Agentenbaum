@@ -88,6 +88,20 @@
   Trigger als `muss` → Fixture braucht echten Trigger ("zwingend erforderlich").
 - **`verify_all.py` 12→13/13 grün.**
 
+## Nachtrag (gleicher Tag, nach Live-Lauf mit echter User-Feed-URL)
+- **Realitäts-Check:** Scope-Schätzung „22 Items / 2–3 relevant" war durch alte Anzeigen aufgebläht.
+  Real+aktuell: enger Suchbegriff `handwerk` = **1** Treffer; **leerer `templateQueryString` +
+  `resultsPerPage=100`** + client-seitige `titel_keywords` = **~3–6 technisch relevant** (Mess-/
+  Regeltechniker FFM 13km, 2× Techniker Elektrotechnik Darmstadt 27km). Verdict: dünnes Segment,
+  **Gratis-Hintergrundfang, kein Volumen** — echte Indeed-Blindflecke. Memory + Scope korrigiert.
+- **`detail_fetch` Default True → FALSE** (quelle_servicebund.hole_stellen + main.ergaenze_servicebund
+  + CLI `--detail` statt `--no-detail` + example-yaml). Grund: der Crawl-delay-30s-pro-Stelle-Fetch
+  blockiert lange (hängte den Shell wiederholt beim Live-Probing); Titel+Ort+Datum+Scoring reichen
+  zum Sichten. `true` nur bei Volltext-Bedarf, dann via `max_detail` gedeckelt. Offline-Verify grün
+  (verify_servicebund testet die Parser, nicht den Default → unverändert grün).
+- example-yaml-Stub trägt jetzt die **gemessene beste Config** (leerer Suchbegriff, resultsPerPage=100,
+  erweiterte titel_keywords, detail_fetch: false).
+
 ## Offen / nächste Posten
 - **COMMIT** (auf User-go), alles **kein PII**: `quelle_servicebund.py`, `verify_servicebund.py`,
   `tailor_treffer.py`, `verify_tailor_treffer.py`, `main.py`, `profile/jobprofil.example.yaml`,

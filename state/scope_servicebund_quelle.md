@@ -89,7 +89,23 @@ Heusenstamm/Darmstadt/Frankfurt — viele im GEO-Belt). Schema wie erwartet (tit
   Pflicht** (z.B. letzte 30–90 Tage), sonst Karteileichen. Zusätzlicher Bau-Punkt.
 - **Crawl-delay-Kosten klein**: nach Score-Vorfilter nur ~Handvoll Detail-Fetches → ~Minuten, ok.
 
+## KORREKTUR nach Bau + Live-Lauf (2026-06-29, echte User-Feed-URL) — Volumen war zu optimistisch
+Die obige „22 Items / 2–3 relevant"-Schätzung war durch **alte Anzeigen (Karteileichen)** aufgebläht.
+Real + aktuell (mit `pubDate`-Filter ≤90 Tage):
+- **Enger Suchbegriff `templateQueryString=handwerk` → nur 1** Technik-Treffer im Umkreis (Mess-/
+  Regeltechniker FFM 13km). „mechaniker" = 0 aktuell in 30km. Der RSS-Generator filtert lose +
+  deckelte früher bei 15/Seite.
+- **Besser: `templateQueryString` LEER + `resultsPerPage=100`** → 100 aktuelle regionale ÖD-Items,
+  die **client-seitigen `titel_keywords` sieben** → **~3–6 technisch relevant** (Mess-/Regeltechniker
+  FFM, 2× Techniker Elektrotechnik Darmstadt 27km). Rest = Rauschen, das der Match-Scorer wegsortiert.
+- **Verdict:** dünnes Segment, **Gratis-Hintergrundfang statt Volumen-Lieferant** — echte Indeed-
+  Blindflecke, aber wenig. Anlassen lohnt (Null-Kosten), nicht überschätzen.
+- **`detail_fetch` Default = AUS** umgestellt: der Crawl-delay-30s-pro-Stelle-Fetch blockiert lange
+  (hängte den Shell wiederholt); Titel+Ort+Datum+Scoring reichen zum Sichten. `true` nur bei
+  Volltext-Bedarf (jdparser/tailoring), dann via `max_detail` deckeln.
+
 ## Empfehlung
 service.bund.de-RSS = **niedrigstes Legal-Risiko (sanktioniert), keine neue Dependency, deckt
 interamt mit**. Bau als eigener Wolf-Posten (Laufzeit wegen Crawl-delay 30 s = §3.6b). Erst die
 gefilterte Feed-URL + Volumen-Messung, dann Adapter + Verify, dann in Pipeline einhängen.
+**Gebaut v20 (`quelle_servicebund.py`), Realitäts-Check oben.**

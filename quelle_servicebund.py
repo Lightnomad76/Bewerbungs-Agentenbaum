@@ -13,7 +13,8 @@ Requests (hart eingehalten). Scope/Belege: state/scope_servicebund_quelle.md.
 Stdlib-only: xml.etree + urllib + email.utils + html — KEINE neue pip-Dependency.
 read-only: nur lesen + parsen + filtern. Kein Login, kein Schreiben.
 
-CLI:  python quelle_servicebund.py <feed_url> [--no-detail] [--max-tage N] [--max-detail N]
+CLI:  python quelle_servicebund.py <feed_url> [--detail] [--max-tage N] [--max-detail N]
+      (Detail-Fetch ist standardmäßig AUS — Crawl-delay-Laufzeit; mit --detail anschalten.)
 """
 from __future__ import annotations
 
@@ -221,12 +222,14 @@ def hole_stellen(feed_url: str, standort: str | None = None,
                  max_distanz_km: int | None = None,
                  titel_keywords: list[str] | None = None,
                  max_alter_tage: int | None = DEFAULT_MAX_ALTER_TAGE,
-                 detail_fetch: bool = True,
+                 detail_fetch: bool = False,
                  max_detail: int = DEFAULT_MAX_DETAIL,
                  log=print) -> list[dict]:
-    """Vollständiger service.bund-Lauf. §3.6b-Laufzeit-Posten WENN detail_fetch:
-    der Detail-Fetch ist block-gepuffert N×30 s -> deshalb hart über Vorfilter +
-    max_detail gedeckelt, sequentiell, mit Liveness-Logs (START/Fortschritt/ENDE)."""
+    """Vollständiger service.bund-Lauf. **detail_fetch ist standardmäßig AUS** —
+    der Detail-Fetch ist ein §3.6b-Laufzeit-Posten (block-gepuffert N×30 s Crawl-delay)
+    und kann lange blockieren; Titel/Ort/Datum + Scoring reichen zum Sichten. Erst bei
+    detail_fetch=True wird der Aufgaben/Profil-Volltext nachgeladen (für jdparser/tailoring),
+    dann hart über Vorfilter + max_detail gedeckelt, sequentiell, mit Liveness-Logs."""
     xml_bytes = _http_get_bytes(feed_url)
     treffer = parse_rss(xml_bytes)
     log(f"  [service.bund] {len(treffer)} RSS-Items roh")
@@ -275,7 +278,7 @@ def _cli(argv: list[str]) -> int:
         print(__doc__)
         return 0
     feed_url = argv[0]
-    detail = "--no-detail" not in argv
+    detail = "--detail" in argv  # Default AUS (Crawl-delay-Laufzeit); --no-detail bleibt als No-Op erlaubt
     max_tage = DEFAULT_MAX_ALTER_TAGE
     max_detail = DEFAULT_MAX_DETAIL
     if "--max-tage" in argv:
