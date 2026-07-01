@@ -74,8 +74,8 @@ KEYWORD_KATALOG = {
         ("Instandhaltung", r"instandhalt(?:ung|en)"),
         ("Wartung", r"wartung|warten"),
         ("Reparatur", r"reparat(?:ur|ieren)"),
-        ("Hydraulik", r"hydraulik"),
-        ("Pneumatik", r"pneumatik"),
+        ("Hydraulik", r"hydraulik|hydraulisch"),
+        ("Pneumatik", r"pneumatik|pneumatisch"),
         ("Technisches Zeichnen", r"technische[nr]?\s+zeichn|zeichnung(?:en)?\s+les"),
         # Kern-Industriemechaniker-Vokabular (v13: realer Anzeigen-Test KTO/Rodgau
         # deckte diese Luecken auf — Anzeige nennt sie unter "Erweiterte Kenntnisse").
@@ -87,6 +87,13 @@ KEYWORD_KATALOG = {
         ("Maschineneinrichtung", r"maschineneinrichtung|anlageneinrichtung"),
         ("Maschinenführung", r"maschinenführung|anlagenführung|maschinenbedienung|anlagenbedienung"),
         ("Justieren", r"justier(?:en|ung)"),
+        # v21 (2026-07-01): realer Indeed-Test (CMBlu Industriemechaniker) deckte auf, dass
+        # gaengiges Prototypen-/Sondermaschinenbau-Vokabular fehlte. Evidenzbasiert: alle
+        # Begriffe standen wortwoertlich in der echten Anzeige; "Prototyp" matcht zusaetzlich
+        # Adams Siemens-Station ("Prototypen"). ("hydraulisch"-Adjektiv-Recall oben mitgefixt.)
+        ("Prototypenbau", r"prototyp(?:en|enbau)?"),
+        ("Sondermaschinenbau", r"sondermaschinenbau"),
+        ("Werkzeugmaschine", r"werkzeugmaschine"),
         # v18: öffentlicher-Dienst-Technik (service.bund-Quelle, Scope 2026-06-29) — Rollen,
         # die im gemessenen ÖD-Feed real vorkamen + zum Profil passen (Stadtwerke/Kommune/Theater).
         ("Anlagenmechaniker", r"anlagenmechaniker"),

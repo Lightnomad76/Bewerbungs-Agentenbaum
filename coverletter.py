@@ -79,6 +79,46 @@ def _bewerber_als_text(bewerber: dict) -> str:
 # ---------------------------------------------------------------------------
 
 
+def _belegstation(bewerber: dict, jd_result: dict, abgleich_result: dict,
+                  stationen: list) -> tuple:
+    """Belegstation fuers Anschreiben waehlen: die fuer DIESE Anzeige relevanteste
+    Station — dieselbe Rangfolge wie cvtailoring, damit Brief und CV-Tailoring NICHT
+    auseinanderlaufen (frueher zitierte der Brief stur die juengste Station
+    `stationen[0]`, die das CV-Tailoring evtl. gerade nach unten sortiert hatte).
+    Tie-Break bleibt die Original-Reihenfolge -> ohne Relevanz-Signal faellt es auf
+    die juengste Station zurueck (= altes Verhalten, ruecwaertskompatibel).
+    Lazy import bricht den Modul-Zyklus (cvtailoring importiert coverletter)."""
+    try:
+        from cvtailoring import priorisiere
+        sortiert = priorisiere(bewerber, jd_result, abgleich_result).get("stationen") or []
+        if sortiert:
+            top = sortiert[0]
+            return (top.get("firma") or "").strip(), (top.get("zeitraum") or "").strip()
+    except Exception:
+        pass  # jede Stoerung -> alter, sicherer Pfad
+    st = stationen[0]
+    return (st.get("firma") or "").strip(), (st.get("zeitraum") or "").strip()
+
+
+# Kategorie-Prioritaet fuer die Einstiegs-Reihenfolge: Fachliches zuerst, Sprachen zuletzt.
+_KAT_PRIO = {"fertigung": 0, "mess_qs": 0, "steuerung_it": 0, "normen": 1,
+             "soft": 2, "sprachen": 3}
+
+
+def _fachlich_zuerst(vorhanden: list, jd_result: dict) -> list:
+    """Reihenfolge fuers Anschreiben: fachliche Keywords (Fertigung/Mess-QS/Steuerung)
+    zuerst, Sprachen zuletzt. Sonst fuehrt der Einstieg mit 'Deutsch, Englisch'
+    (tailoring.abgleich liefert vorhanden alphabetisch) — bei einer Technik-Stelle
+    schwach. Muss/Kann-Gewicht taugt hier NICHT: reale Anzeigen triggern oft nur die
+    Sprachen als 'kann', die Fach-Skills bleiben neutral. Innerhalb gleicher Prioritaet
+    stabil (sorted ist stabil) -> die alphabetische Eingangsreihenfolge bleibt."""
+    kat_von = {}
+    for kat, kws in (jd_result.get("keywords") or {}).items():
+        for kw in kws:
+            kat_von[kw] = kat
+    return sorted(vorhanden, key=lambda kw: _KAT_PRIO.get(kat_von.get(kw, ""), 1))
+
+
 def schreibe(bewerber: dict, jd_result: dict, abgleich_result: dict,
              ort: str = None, datum: str = None, titel: str = None) -> str:
     """Anschreiben deterministisch aus Bausteinen zusammensetzen. Gibt Plain-Text.
@@ -96,7 +136,7 @@ def schreibe(bewerber: dict, jd_result: dict, abgleich_result: dict,
     meta = jd_result.get("meta", {})
     titel = _titel_clean(titel if titel is not None else meta.get("titel"))
     anrede = _anrede(meta.get("ansprechpartner"))
-    vorhanden = abgleich_result.get("vorhanden", []) or []
+    vorhanden = _fachlich_zuerst(abgleich_result.get("vorhanden", []) or [], jd_result)
     aufgaben = jd_result.get("abschnitte", {}).get("aufgaben", []) or []
 
     # --- Kopf (DIN: Kontakt als Plain-Text) -----------------------------------
@@ -117,9 +157,7 @@ def schreibe(bewerber: dict, jd_result: dict, abgleich_result: dict,
     # NOCH NICHT genannte gedeckte Keywords (vorhanden[4:]).
     bezeichner = "diese Schwerpunkte" if vorhanden else "die geforderten Aufgaben"
     if stationen:
-        st = stationen[0]
-        firma = (st.get("firma") or "").strip()
-        zeitraum = (st.get("zeitraum") or "").strip()
+        firma, zeitraum = _belegstation(bewerber, jd_result, abgleich_result, stationen)
         beleg = "In meiner Tätigkeit"
         if firma:
             beleg += " bei " + firma

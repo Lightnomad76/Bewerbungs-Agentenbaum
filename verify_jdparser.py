@@ -138,6 +138,20 @@ def main():
     ok("MSR-Technik" not in keywords_flach(parse("Nach den Regeln der Technik arbeiten.")),
        "'Regeln' ohne -technik triggert MSR nicht (Wortgrenze)")
 
+    print("[5d] Prototypen-/Sondermaschinenbau + Hydraulik-Adjektiv (v21, CMBlu-Realtest)")
+    cm = keywords_flach(parse(
+        "Aufbau mechanischer und hydraulischer Prototypen- und Testaufbauten. "
+        "Montage von hydraulischen Komponenten. Umgang mit konventionellen "
+        "Werkzeugmaschinen. Erfahrung im Sondermaschinenbau von Vorteil."))
+    for kw in ["Prototypenbau", "Sondermaschinenbau", "Werkzeugmaschine", "Hydraulik"]:
+        ok(kw in cm, f"CMBlu-Keyword erkannt: {kw}", cm)
+    # Der eigentliche Recall-Bug: das ADJEKTIV 'hydraulisch' wurde vom alten Regex
+    # r"hydraulik" nicht getroffen (fehlendes 'k'). Jetzt schon.
+    ok("Hydraulik" in keywords_flach(parse("Wartung hydraulischer Systeme.")),
+       "'hydraulisch' (Adjektiv) matcht Hydraulik", keywords_flach(parse("hydraulischer")))
+    ok("Hydraulik" in keywords_flach(parse("Reparatur der Hydraulik.")),
+       "'Hydraulik' (Substantiv) matcht weiterhin")
+
     print("[6] Negativ-/Robustheit")
     leer = parse("")
     ok(leer["stats"]["keywords_gesamt"] == 0, "leerer Text -> 0 Keywords")

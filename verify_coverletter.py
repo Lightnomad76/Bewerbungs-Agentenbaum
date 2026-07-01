@@ -137,6 +137,58 @@ def main():
     ok("Sehr geehrter Herr Müller," in bh, "Herr-Anrede gebeugt + nicht doppelt",
        [l for l in bh.splitlines() if "geehrt" in l])
 
+    print("[11] Belegstation = relevanteste Station, NICHT stur die juengste")
+    # Fix: coverletter zitierte frueher stationen[0] (juengste), auch wenn cvtailoring die
+    # gerade nach unten sortierte. Jetzt waehlt es die fuer die Anzeige relevanteste Station
+    # (gleiche Rangfolge wie cvtailoring) -> Brief + CV-Tailoring laufen nicht auseinander.
+    bewerber_multi = {
+        "name": "Max Mustermann", "ort": "Musterstadt",
+        "beruf": "Industriemechaniker", "erfahrung": "langjähriger Erfahrung",
+        "stationen": [
+            # juengste Station: fuer eine Montage/Hydraulik-Anzeige IRRELEVANT (Score 0)
+            {"firma": "Pruefdienst GmbH", "zeitraum": "2020-2024",
+             "taetigkeiten": ["Dokumentation von Ergebnissen", "Terminplanung"],
+             "skills": ["Terminplanung"]},
+            # aeltere Station: montage-/hydraulik-relevant (Score > 0)
+            {"firma": "Montagebau AG", "zeitraum": "2010-2020",
+             "taetigkeiten": ["Montage von hydraulischen Baugruppen nach Zeichnung"],
+             "skills": ["Montage", "Hydraulik"]},
+        ],
+    }
+    anz_mont = ("Industriemechaniker (m/w/d)\n\nIhre Aufgaben:\n"
+                "- Montage von hydraulischen Baugruppen\n")
+    b_multi = schreibe_fuer_anzeige(bewerber_multi, anz_mont, datum=DATUM)
+    ok("Montagebau AG" in b_multi, "Beleg zitiert die relevante (aeltere) Station", b_multi)
+    beleg_zeile = [l for l in b_multi.splitlines() if l.startswith("In meiner Tätigkeit")]
+    ok(beleg_zeile and "Pruefdienst GmbH" not in beleg_zeile[0],
+       "Beleg zitiert NICHT die irrelevante juengste Station", beleg_zeile)
+    # Rueckwaertskompatibel: ohne Relevanz-Signal (Single-Station) bleibt es bei stationen[0]
+    b_single = schreibe_fuer_anzeige(BEWERBER, ANZEIGE, datum=DATUM)
+    ok("Mustermann Technik GmbH" in b_single, "Single-Station-Fallback = juengste Station")
+
+    print("[12] Einstieg fuehrt mit Fach-Skills, Sprachen zuletzt")
+    # Fix: vorhanden kommt aus tailoring.abgleich alphabetisch -> 'Deutsch, Englisch'
+    # standen vor Fach-Skills. Der Einstieg soll fachlich fuehren.
+    bewerber_fach = {
+        "name": "Max Mustermann", "ort": "Musterstadt", "beruf": "Industriemechaniker",
+        "stationen": [{"firma": "Technik GmbH", "zeitraum": "2015-2024",
+                       "taetigkeiten": ["Montage hydraulischer Baugruppen"],
+                       "skills": ["Montage", "Hydraulik"]}],
+        "sprachen": ["Deutsch", "Englisch"],
+    }
+    anz_fach = ("Industriemechaniker (m/w/d)\n\nIhre Aufgaben:\n"
+                "- Montage von hydraulischen Baugruppen\n\nIhr Profil:\n"
+                "- Sehr gute Deutschkenntnisse, gute Englischkenntnisse\n")
+    b_fach = schreibe_fuer_anzeige(bewerber_fach, anz_fach, datum=DATUM)
+    einstieg = [l for l in b_fach.splitlines() if l.startswith("Als ")][0]
+    # sowohl ein Fach-Skill als auch eine Sprache im Einstieg, Fach VOR Sprache
+    pos_fach = min((einstieg.find(k) for k in ("Montage", "Hydraulik") if k in einstieg),
+                   default=-1)
+    pos_spr = min((einstieg.find(k) for k in ("Deutsch", "Englisch") if k in einstieg),
+                  default=10**9)
+    ok(pos_fach != -1, "Fach-Skill (Montage/Hydraulik) im Einstieg", einstieg)
+    ok(pos_fach < pos_spr, "Fach-Skill steht VOR der Sprache im Einstieg", einstieg)
+
     print("")
     if _fehler == 0:
         print("GRUEN: alle CoverLetter-Checks bestanden")
