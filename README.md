@@ -78,6 +78,12 @@ Kette: `jdparser → tailoring → {cvtailoring, coverletter}`; der Brief-Output
 | E-A…E-C | Bewerbungs-Pipeline (Critic · FactGrounding · JDParser · Tailoring · ATS-Linter · CoverLetter · CVTailoring) | ✅ |
 | 4 | Natives Xing/Jobware-Scraping | optional |
 
+## Projekt-Doku
+
+Der laufende Projektstand wird als lebendes Dashboard in einem separaten (privaten) Obsidian-Vault
+gepflegt; `HANDOFF.md` (Plan + offene Punkte) und `state/` (Detail-Changelog je Etappe) in diesem
+Repo bleiben die **Quelle der Wahrheit**.
+
 ## Scope / Caveats
 
 - **Read-only Scraping** bewegt sich in einer AGB-Grauzone; Einloggen/Automatisieren von Konten
